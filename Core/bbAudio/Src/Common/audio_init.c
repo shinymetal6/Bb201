@@ -9,16 +9,16 @@
 #define	DUAL
 
 #define DMA_BUFFER __attribute__((section(".audio_buffers")))
-/*
-#define BUF_SIZE 2048
-__attribute__ ((section(".buffers"), used))
-uint8_t pipe_buffer[BUF_SIZE];
-*/
 
 DMA_BUFFER __attribute__ ((aligned (4))) uint16_t		audio_buf_0_2_in[AUDIOBUF_LEN];
 DMA_BUFFER __attribute__ ((aligned (4))) uint16_t		audio_buf_1_3_in[AUDIOBUF_LEN];
 DMA_BUFFER __attribute__ ((aligned (4))) uint32_t		audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
 
+/*
+__attribute__ ((aligned (4))) uint16_t		audio_buf_0_2_in[AUDIOBUF_LEN];
+__attribute__ ((aligned (4))) uint16_t		audio_buf_1_3_in[AUDIOBUF_LEN];
+__attribute__ ((aligned (4))) uint32_t		audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
+*/
 uint8_t	half_in_ch0=0 , audioin_buffer_ready_ch0=0;
 uint8_t	half_in_ch1=1 , audioin_buffer_ready_ch1=0;
 uint8_t	audio_delay_index_ch0 = 0 ,audio_delay_index_ch1 = 0;

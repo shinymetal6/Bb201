@@ -200,6 +200,7 @@ int main(void)
   ECHOInit    (stage, PIPE2,PIPE3,OUTCHANNEL_0);
   ECHOInit    (stage, PIPE3,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
   */
+  /*
   VCOInit       (stage, SINE, PIPE0,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
   //q15FirInit    (stage, AUDIO_BUFIN_CH0,PIPE0, ffirCoeffs32,OUTCHANNEL_0);
   RINGInit		(stage, AUDIO_BUFIN_CH0,PIPE0, PIPE1,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
@@ -209,6 +210,9 @@ int main(void)
   MixerInit     (stage, PIPE0,PIPE1, 	PIPE4,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
   MixerInit     (stage, PIPE2,PIPE3, 	PIPE5,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
   MixerInit     (stage, PIPE4,PIPE5, 	AUDIO_BUFOUT_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
+  */
+  q15FirInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0, ffirCoeffs32,OUTCHANNEL_0);
+  //ECHOInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
 
   /* USER CODE END 2 */
 
@@ -985,7 +989,7 @@ void MPU_Config(void)
   */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER0;
-  MPU_InitStruct.BaseAddress = 0x30000000;
+  MPU_InitStruct.BaseAddress = 0x38000000;
   MPU_InitStruct.Size = MPU_REGION_SIZE_64KB;
   MPU_InitStruct.SubRegionDisable = 0x0;
   MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
