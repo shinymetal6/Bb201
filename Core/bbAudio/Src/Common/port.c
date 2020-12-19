@@ -16,3 +16,11 @@ void control_timer_start(void)
 {
 	HAL_LPTIM_Counter_Start_IT(CONTROL_LOOP_TIMER,3125);
 }
+
+void change_tim_frequency(uint32_t sampling_frequency , uint32_t channel)
+{
+	if ( channel == OUTCHANNEL_0)
+		htim4.Instance->ARR= TIMERS_FREQ / sampling_frequency;
+	if ( channel == OUTCHANNEL_1)
+		htim6.Instance->ARR= TIMERS_FREQ / sampling_frequency;
+}

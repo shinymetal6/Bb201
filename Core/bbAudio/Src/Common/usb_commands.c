@@ -39,6 +39,7 @@ void five_bytes_commands(void)
 	{
 		System.sampling_frequency[channel] = p0;
 		sprintf(USB_TxBuffer,"Sampling frequency set to %d : OK\n\r",p0);
+		ChangeSampleFrequency(p0,channel);
 	}
 	else
 		sprintf((char *)&USB_TxBuffer[0],"Error\n\r");
@@ -98,26 +99,31 @@ uint32_t	channel;
 	if ( strcmp(cmd,"clear") == 0 )
 	{
 		sprintf(USB_TxBuffer,"All %d channels cleared\n\r",(int )ClearFunnelEntries());
+		return;
 	}
 	if ( strcmp(cmd,"storeprogram") == 0 )
 	{
 		StoreProgramInFlash();
 		sprintf(USB_TxBuffer,"Program stored\n\r");
+		return;
 	}
 	if ( strcmp(cmd,"storesettings") == 0 )
 	{
 		StoreSettingsInFlash();
 		sprintf(USB_TxBuffer,"Settings stored\n\r");
+		return;
 	}
 	if ( strcmp(cmd,"loadprogram") == 0 )
 	{
 		LoadProgramFromFlash();
 		sprintf(USB_TxBuffer,"Program loaded\n\r");
+		return;
 	}
 	if ( strcmp(cmd,"loadsettings") == 0 )
 	{
 		LoadSettingsFromFlash();
 		sprintf(USB_TxBuffer,"Settings loaded\n\r");
+		return;
 	}
 	if (( strcmp(cmd,"info") == 0 ) || ( strcmp(cmd,"?") == 0 ))
 	{
@@ -168,7 +174,9 @@ uint32_t	channel;
 			if (( strlen(USB_TxBuffer) + strlen(buf)) < USB_TXBUF_SIZE )
 				strcat(USB_TxBuffer,buf);
 		}
+		return;
 	}
+	sprintf(USB_TxBuffer,"Command error :  %s is not a valid command\n\r",cmd);
 }
 
 static void parse_packet(void)

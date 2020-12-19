@@ -8,11 +8,16 @@
 #include "main.h"
 #define	DUAL
 
-__attribute__ ((aligned (4))) uint16_t		audio_buf_0_2_in[AUDIOBUF_LEN];
-__attribute__ ((aligned (4))) uint16_t		audio_buf_1_3_in[AUDIOBUF_LEN];
+#define DMA_BUFFER __attribute__((section(".audio_buffers")))
+/*
+#define BUF_SIZE 2048
+__attribute__ ((section(".buffers"), used))
+uint8_t pipe_buffer[BUF_SIZE];
+*/
 
-__attribute__ ((aligned (4))) uint32_t		audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
-
+DMA_BUFFER __attribute__ ((aligned (4))) uint16_t		audio_buf_0_2_in[AUDIOBUF_LEN];
+DMA_BUFFER __attribute__ ((aligned (4))) uint16_t		audio_buf_1_3_in[AUDIOBUF_LEN];
+DMA_BUFFER __attribute__ ((aligned (4))) uint32_t		audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
 
 uint8_t	half_in_ch0=0 , audioin_buffer_ready_ch0=0;
 uint8_t	half_in_ch1=1 , audioin_buffer_ready_ch1=0;
@@ -55,7 +60,6 @@ void clear_buffer_ready_flag(void)
 void GetBufferIn(void)
 {
 uint16_t	i,start,end;
-	debug_1();
 	if ( audioin_buffer_ready_ch0 == 1 )
 	{
 		get_limits(&start,&end,&half_in_ch0);
@@ -74,8 +78,6 @@ uint16_t	i,start,end;
 			audio_pipe[CH3_IN][i] = audio_buf_1_3_in[(i*2)+1];
 		}
 	}
-	debug_0();
-
 }
 
 void AudioCh0Init(void)

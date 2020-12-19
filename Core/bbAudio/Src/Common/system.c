@@ -52,23 +52,29 @@ uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffe
 void DoFunnelOut(void)
 {
 uint32_t	i;
-	debug_1();
 	for(i=0;i<NUMSTAGES;i++)
 	{
 		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( audioin_buffer_ready_ch0 == 1 ))
+		  {
+				debug_1();
 				(*Program_ch0[i].FuncPtr)(Program_ch0[i].in_buffer1,Program_ch0[i].in_buffer2,Program_ch0[i].out_buffer,Program_ch0[i].control_buffer1,Program_ch0[i].control_buffer2,Program_ch0[i].aux,Program_ch0[i].channel);
+				debug_0();
+		  }
 		  else
 			  break;
 	}
 	for(i=0;i<NUMSTAGES;i++)
 	{
 		  if (( Program_ch1[i].FuncPtr != NULL) && ( Program_ch1[i].channel == OUTCHANNEL_1) && ( audioin_buffer_ready_ch1 == 1 ))
+		  {
+				debug_1();
 				(*Program_ch1[i].FuncPtr)(Program_ch1[i].in_buffer1,Program_ch1[i].in_buffer2,Program_ch1[i].out_buffer,Program_ch1[i].control_buffer1,Program_ch1[i].control_buffer2,Program_ch1[i].aux,Program_ch1[i].channel);
+				debug_0();
+		  }
 		  else
 			  break;
 	}
 	clear_buffer_ready_flag();
-	debug_0();
 }
 
 void bbSystemInit(void)
@@ -90,6 +96,7 @@ void ChangeSampleFrequency(uint32_t sampling_frequency , uint32_t channel)
 		System.sampling_frequency[OUTCHANNEL_0] = sampling_frequency;
 	if ( channel == OUTCHANNEL_1)
 		System.sampling_frequency[OUTCHANNEL_1] = sampling_frequency;
+	change_tim_frequency(sampling_frequency , channel);
 }
 
 uint32_t ClearFunnelEntries(void)

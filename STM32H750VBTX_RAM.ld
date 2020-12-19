@@ -51,6 +51,7 @@ MEMORY
 /* Sections */
 SECTIONS
 {
+
   /* The startup code into "RAM_D1" Ram type memory */
   .isr_vector :
   {
@@ -172,6 +173,12 @@ SECTIONS
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
   } >RAM_D1
+
+  .buffers(NOLOAD) : {
+    . = ALIGN(4);
+    *(.buffers*)
+} > RAM_D3
+
 
   /* Remove information from the compiler libraries */
   /DISCARD/ :

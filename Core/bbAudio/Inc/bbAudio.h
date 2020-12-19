@@ -8,9 +8,8 @@
 #ifndef BBAUDIO_INC_BBAUDIO_H_
 #define BBAUDIO_INC_BBAUDIO_H_
 
-#define		ARM_MATH_CM7
-/* for debug only */
-//#define	SIMPLE_ECHO
+#define	ARM_MATH_CM7
+#define	TIMERS_FREQ	240000000
 
 #define	bbVERSION	"0.0.1"
 /* Audio */
@@ -117,6 +116,8 @@ extern	uint32_t ECHOInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buff
 #define	INTERNAL_VCACONTROL	0
 #define	EXTERNAL_VCACONTROL	1
 extern	uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,uint32_t control, uint32_t channel);
+/* ring_mod.c */
+extern	uint32_t RINGInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel);
 /* usb_commands.c */
 #define	USB_TXBUF_SIZE	2048
 extern	uint32_t	usb_packet_ready;
@@ -138,6 +139,8 @@ typedef struct {
 extern	s_rxbuf		usb_rxbuf;
 
 /* Debug and utilities functions */
+extern	void change_tim_frequency(uint32_t sampling_frequency , uint32_t channel);
+
 extern	uint32_t get_bufferhalf(uint32_t channel);
 extern	uint32_t get_limits(uint16_t *start,uint16_t *end, uint8_t *half_in);
 extern	void clear_buffer_ready_flag(void);
