@@ -33,7 +33,7 @@ uint32_t FloatFirInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,
 {
 	arm_fir_init_f32(&S, NUM_TAPS, fFIRCoef, &firStateF32[0], BLOCK_SIZE);
 	//setOutStage(in_stage , (uint32_t )&static_do_float_fir,in_buffer,out_buffer,get_bufferhalf(channel),0,channel);
-	setOutStage((uint32_t )&static_do_float_fir,in_buffer, out_buffer, get_bufferhalf(channel), 0, 0, 0, 0, in_stage);
+	setOutStage((uint32_t )&static_do_float_fir,in_buffer, out_buffer, get_bufferhalf(channel), 0, 0, 0, 0, in_stage,"FloatFIR");
 	stage++;
 	return 0;
 }

@@ -12,6 +12,7 @@
 /* for debug only */
 //#define	SIMPLE_ECHO
 
+#define	bbVERSION	"0.0.1"
 /* Audio */
 #define	INCHANNEL_0		0
 #define	INCHANNEL_1		1
@@ -30,6 +31,8 @@ extern	DMA_HandleTypeDef hdma_dac1_ch1;
 extern	DMA_HandleTypeDef hdma_dac1_ch2;
 extern	OPAMP_HandleTypeDef hopamp1;
 extern	OPAMP_HandleTypeDef hopamp2;
+extern	SPI_HandleTypeDef hspi4;
+extern	TIM_HandleTypeDef htim15;
 
 extern	void AudioInit(void);
 #define		AUDIO_0_2_ADC			&hadc3
@@ -59,9 +62,9 @@ uint16_t	control_ready;
 #define		CONTROL_ADC				&hadc2
 extern	void ControlInit(void);
 
-/* Funnel logic, in system.c */
-#define	NUMSTAGES		16
-typedef struct _AF_OutTypeDef
+/* system.c */
+#define	NUMSTAGES		32
+typedef struct _ProgramTypeDef
 {
 	uint32_t (* FuncPtr)(uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel);
 	//uint32_t (* FuncPtr)(uint32_t AF_OutPtr);
@@ -73,13 +76,30 @@ typedef struct _AF_OutTypeDef
 	uint32_t aux;
 	uint32_t channel;
 	uint32_t on_stage;
-}AF_OutTypeDef;
+	char 	 function[32];
+}ProgramTypeDef;
+
+typedef struct _SystemParametersTypeDef
+{
+	char					Header[8];
+	char					Version[8];
+	uint32_t 				sampling_frequency[2];
+}SystemParametersTypeDef;
+
 extern	uint32_t		stage;
-extern	AF_OutTypeDef	Af_OUT_ch0[NUMSTAGES];
-/* system.c */
-extern uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel, uint32_t stage_number);
+extern	ProgramTypeDef	Program_ch0[NUMSTAGES];
+extern	ProgramTypeDef	Program_ch1[NUMSTAGES];
+extern	SystemParametersTypeDef	System;
+extern uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel, uint32_t stage_number,char *function);
 extern	void DoFunnelOut(void);
-extern	void DoControl(void);
+extern	uint32_t ClearFunnelEntries(void);
+extern	uint32_t ReportFunnelEntries(uint32_t channel);
+extern	char *ReportFunnelName(uint32_t channel,uint32_t funnel_entry);
+extern	void bbSystemInit(void);
+extern	void debug_0(void);
+extern	void debug_1(void);
+extern	void ChangeSampleFrequency(uint32_t sampling_frequency , uint32_t channel);
+
 /* audio_init.c */
 extern	void GetBufferIn(void);
 extern	void do_workbuf_out(void);
@@ -97,10 +117,27 @@ extern	uint32_t ECHOInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buff
 #define	INTERNAL_VCACONTROL	0
 #define	EXTERNAL_VCACONTROL	1
 extern	uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,uint32_t control, uint32_t channel);
+/* usb_commands.c */
+#define	USB_TXBUF_SIZE	2048
+extern	uint32_t	usb_packet_ready;
+extern	uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
+extern	uint8_t	USB_RxBuffer[64];
+extern	char	USB_TxBuffer[USB_TXBUF_SIZE];
+extern	uint32_t USB_RxBufferLen;
+extern	void CheckUSB(void);
+
+#define	USBUART_BUFLEN	128
+typedef struct {
+	uint8_t byte_count;
+	uint8_t usb_header;
+	uint8_t usb_rx_index;
+	uint8_t usb_flag;
+	uint8_t packet[USBUART_BUFLEN];
+} s_rxbuf;
+
+extern	s_rxbuf		usb_rxbuf;
 
 /* Debug and utilities functions */
-extern	void debug_0(void);
-extern	void debug_1(void);
 extern	uint32_t get_bufferhalf(uint32_t channel);
 extern	uint32_t get_limits(uint16_t *start,uint16_t *end, uint8_t *half_in);
 extern	void clear_buffer_ready_flag(void);
@@ -109,5 +146,6 @@ extern	void clear_buffer_ready_flag(void);
 /* Includes, here for back refs */
 #include "audio_buffers.h"
 #include "port.h"
+#include "flash_manager.h"
 
 #endif /* BBAUDIO_INC_BBAUDIO_H_ */

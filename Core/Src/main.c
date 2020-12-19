@@ -20,10 +20,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "usb_device.h"
-#include "fir.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "fir.h"
 
 /* USER CODE END Includes */
 
@@ -58,6 +58,8 @@ LPTIM_HandleTypeDef hlptim3;
 OPAMP_HandleTypeDef hopamp1;
 OPAMP_HandleTypeDef hopamp2;
 
+SPI_HandleTypeDef hspi4;
+
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim15;
@@ -80,6 +82,7 @@ static void MX_ADC2_Init(void);
 static void MX_LPTIM3_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_SPI4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -130,9 +133,10 @@ int main(void)
   MX_LPTIM3_Init();
   MX_TIM6_Init();
   MX_TIM4_Init();
+  MX_SPI4_Init();
   /* USER CODE BEGIN 2 */
-  AudioInit();
-  ControlInit();
+  bbSystemInit();
+
   /*
   VCOInit(SINE,stage,(uint32_t )&audio_pipe0[0],0,OUTCHANNEL_0);
   ECHOInit(stage,(uint32_t )&audio_pipe0[0],(uint32_t )&audio_pipe0[1],OUTCHANNEL_0);
@@ -179,7 +183,6 @@ int main(void)
 */
   q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0, ffirCoeffs32,OUTCHANNEL_0);
 
-  HAL_TIM_PWM_Start_IT(&htim15,TIM_CHANNEL_1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -190,19 +193,13 @@ int main(void)
 		if (( audioin_buffer_ready_ch0 == 1 ) || ( audioin_buffer_ready_ch1 == 1 ))
 		{
 			GetBufferIn();
-#ifdef SIMPLE_ECHO
-			do_workbuf_out();
-#else
 			DoFunnelOut();
-#endif
-			clear_buffer_ready_flag();
 		}
-
 		if ( control_ready == 1 )
 		{
 			control_ready = 0;
-			DoControl();
 		}
+		CheckUSB();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -268,8 +265,8 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_LPTIM3
-                              |RCC_PERIPHCLK_USB;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_SPI4|RCC_PERIPHCLK_ADC
+                              |RCC_PERIPHCLK_LPTIM3|RCC_PERIPHCLK_USB;
   PeriphClkInitStruct.PLL3.PLL3M = 12;
   PeriphClkInitStruct.PLL3.PLL3N = 80;
   PeriphClkInitStruct.PLL3.PLL3P = 2;
@@ -278,6 +275,7 @@ void SystemClock_Config(void)
   PeriphClkInitStruct.PLL3.PLL3RGE = RCC_PLL3VCIRANGE_1;
   PeriphClkInitStruct.PLL3.PLL3VCOSEL = RCC_PLL3VCOMEDIUM;
   PeriphClkInitStruct.PLL3.PLL3FRACN = 0;
+  PeriphClkInitStruct.Spi45ClockSelection = RCC_SPI45CLKSOURCE_D2PCLK1;
   PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
   PeriphClkInitStruct.Lptim345ClockSelection = RCC_LPTIM345CLKSOURCE_PLL3;
   PeriphClkInitStruct.AdcClockSelection = RCC_ADCCLKSOURCE_PLL3;
@@ -680,6 +678,54 @@ static void MX_OPAMP2_Init(void)
 }
 
 /**
+  * @brief SPI4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI4_Init(void)
+{
+
+  /* USER CODE BEGIN SPI4_Init 0 */
+
+  /* USER CODE END SPI4_Init 0 */
+
+  /* USER CODE BEGIN SPI4_Init 1 */
+
+  /* USER CODE END SPI4_Init 1 */
+  /* SPI4 parameter configuration*/
+  hspi4.Instance = SPI4;
+  hspi4.Init.Mode = SPI_MODE_MASTER;
+  hspi4.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi4.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi4.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi4.Init.NSS = SPI_NSS_SOFT;
+  hspi4.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+  hspi4.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi4.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi4.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi4.Init.CRCPolynomial = 0x0;
+  hspi4.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+  hspi4.Init.NSSPolarity = SPI_NSS_POLARITY_LOW;
+  hspi4.Init.FifoThreshold = SPI_FIFO_THRESHOLD_01DATA;
+  hspi4.Init.TxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
+  hspi4.Init.RxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
+  hspi4.Init.MasterSSIdleness = SPI_MASTER_SS_IDLENESS_00CYCLE;
+  hspi4.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
+  hspi4.Init.MasterReceiverAutoSusp = SPI_MASTER_RX_AUTOSUSP_DISABLE;
+  hspi4.Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_DISABLE;
+  hspi4.Init.IOSwap = SPI_IO_SWAP_DISABLE;
+  if (HAL_SPI_Init(&hspi4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN SPI4_Init 2 */
+
+  /* USER CODE END SPI4_Init 2 */
+
+}
+
+/**
   * @brief TIM4 Initialization Function
   * @param None
   * @retval None
@@ -875,7 +921,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(EECS_GPIO_Port, EECS_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LOG_GPIO_Port, LOG_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : EECS_Pin */
+  GPIO_InitStruct.Pin = EECS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(EECS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LOG_Pin */
   GPIO_InitStruct.Pin = LOG_Pin;

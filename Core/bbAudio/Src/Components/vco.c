@@ -92,7 +92,7 @@ uint16_t 	*wave;
 		case	SQUARE :	wave = square; break;
 		default : 			wave = sine; break;
 	}
-	setOutStage((uint32_t )&static_do_vco, (uint32_t )wave , out_buffer, get_bufferhalf(channel), freq_control, 0, 0, channel, in_stage);
+	setOutStage((uint32_t )&static_do_vco, (uint32_t )wave , out_buffer, get_bufferhalf(channel), freq_control, 0, 0, channel, in_stage,"VCO");
 
 	stage++;
 	return 0;
