@@ -25,7 +25,6 @@
 
 void FlashFormat(void)
 {
-	bbSystemInit();
 	flash_EraseSector(HEADER_SECTOR);
 	flash_WriteBytes((uint8_t *)&System ,flash_SectorToAddress(HEADER_SECTOR),sizeof(System));
 }
@@ -39,8 +38,9 @@ void InitPeripherals(void)
 uint32_t SetupFlash(void)
 {
 	LoadSettingsFromFlash();
-	if ( strncmp(System.Header,"B201_a",6 ) != 0 )
+	if ( strncmp(System.Header,bbNAME,6 ) != 0 )
 	{
+		bbSystem_SystemSetDefaults();
 		FlashFormat();
 		LoadSettingsFromFlash();
 	}

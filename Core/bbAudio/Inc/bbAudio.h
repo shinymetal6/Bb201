@@ -11,6 +11,7 @@
 #define	ARM_MATH_CM7
 #define	TIMERS_FREQ	240000000
 
+#define	bbNAME		"B201_a"
 #define	bbVERSION	"0.0.1"
 /* Audio */
 #define	INCHANNEL_0		0
@@ -65,8 +66,8 @@ extern	void ControlInit(void);
 #define	NUMSTAGES		32
 typedef struct _ProgramTypeDef
 {
+	uint32_t valid;
 	uint32_t (* FuncPtr)(uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel);
-	//uint32_t (* FuncPtr)(uint32_t AF_OutPtr);
 	uint32_t in_buffer1;
 	uint32_t in_buffer2;
 	uint32_t out_buffer;
@@ -78,6 +79,7 @@ typedef struct _ProgramTypeDef
 	char 	 function[32];
 }ProgramTypeDef;
 
+#define	PROGRAM_VALID	0xc1a0c1a0
 typedef struct _SystemParametersTypeDef
 {
 	char					Header[8];
@@ -98,6 +100,7 @@ extern	void bbSystemInit(void);
 extern	void debug_0(void);
 extern	void debug_1(void);
 extern	void ChangeSampleFrequency(uint32_t sampling_frequency , uint32_t channel);
+extern	void bbSystem_SystemSetDefaults(void);
 
 /* audio_init.c */
 extern	void GetBufferIn(void);
@@ -144,7 +147,6 @@ extern	void change_tim_frequency(uint32_t sampling_frequency , uint32_t channel)
 extern	uint32_t get_bufferhalf(uint32_t channel);
 extern	uint32_t get_limits(uint16_t *start,uint16_t *end, uint8_t *half_in);
 extern	void clear_buffer_ready_flag(void);
-
 
 /* Includes, here for back refs */
 #include "audio_buffers.h"

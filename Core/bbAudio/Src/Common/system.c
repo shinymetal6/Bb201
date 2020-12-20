@@ -21,6 +21,7 @@ uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffe
 		return 1;
 	if ( channel == OUTCHANNEL_0 )
 	{
+		Program_ch0[stage_number].valid =  PROGRAM_VALID;
 		Program_ch0[stage_number].FuncPtr =  (void *)function_ptr;
 		Program_ch0[stage_number].in_buffer1 =  in_buffer1;
 		Program_ch0[stage_number].in_buffer2 =  in_buffer2;
@@ -34,6 +35,7 @@ uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffe
 	}
 	else
 	{
+		Program_ch1[stage_number].valid =  PROGRAM_VALID;
 		Program_ch1[stage_number].FuncPtr =  (void *)function_ptr;
 		Program_ch1[stage_number].in_buffer1 =  in_buffer1;
 		Program_ch1[stage_number].in_buffer2 =  in_buffer2;
@@ -54,7 +56,7 @@ void DoFunnelOut(void)
 uint32_t	i;
 	for(i=0;i<NUMSTAGES;i++)
 	{
-		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( audioin_buffer_ready_ch0 == 1 ))
+		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( audioin_buffer_ready_ch0 == 1 ) && (Program_ch0[i].valid =  PROGRAM_VALID ))
 		  {
 				debug_1();
 				(*Program_ch0[i].FuncPtr)(Program_ch0[i].in_buffer1,Program_ch0[i].in_buffer2,Program_ch0[i].out_buffer,Program_ch0[i].control_buffer1,Program_ch0[i].control_buffer2,Program_ch0[i].aux,Program_ch0[i].channel);
@@ -65,7 +67,7 @@ uint32_t	i;
 	}
 	for(i=0;i<NUMSTAGES;i++)
 	{
-		  if (( Program_ch1[i].FuncPtr != NULL) && ( Program_ch1[i].channel == OUTCHANNEL_1) && ( audioin_buffer_ready_ch1 == 1 ))
+		  if (( Program_ch1[i].FuncPtr != NULL) && ( Program_ch1[i].channel == OUTCHANNEL_1) && ( audioin_buffer_ready_ch1 == 1 )&& (Program_ch1[i].valid =  PROGRAM_VALID ))
 		  {
 				debug_1();
 				(*Program_ch1[i].FuncPtr)(Program_ch1[i].in_buffer1,Program_ch1[i].in_buffer2,Program_ch1[i].out_buffer,Program_ch1[i].control_buffer1,Program_ch1[i].control_buffer2,Program_ch1[i].aux,Program_ch1[i].channel);
@@ -77,12 +79,17 @@ uint32_t	i;
 	clear_buffer_ready_flag();
 }
 
-void bbSystemInit(void)
+void bbSystem_SystemSetDefaults(void)
 {
-	sprintf(System.Header,"B201_a");
+	sprintf(System.Header,bbNAME);
 	sprintf(System.Version,bbVERSION);
 	System.sampling_frequency[0] = 96000;
 	System.sampling_frequency[1] = 96000;
+}
+
+void bbSystemInit(void)
+{
+	bbSystem_SystemSetDefaults();
 	SetupFlash();
 	AudioInit();
 	ControlInit();

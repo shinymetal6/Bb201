@@ -29,13 +29,11 @@ uint8_t	ret;
 static void flash_WaitForWriteEnd(void)
 {
 uint8_t		StatusRegister1;
-	HAL_Delay(1);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_RESET);
 	flash_SpiTX(GETSTATUS_COMMAND);
 	do
 	{
 		StatusRegister1 = flash_SpiTX(W25Q_DUMMY_BYTE);
-		HAL_Delay(1);
 	}
 	while ((StatusRegister1 & 0x01) == 0x01);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
@@ -46,7 +44,6 @@ static void flash_WriteEnable(void)
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_RESET);
 	flash_SpiTX(WRITE_ENABLE_COMMAND);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
-	HAL_Delay(1);
 }
 
 void flash_WriteDisable(void)
@@ -54,7 +51,6 @@ void flash_WriteDisable(void)
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_RESET);
 	flash_SpiTX(WRITE_DISABLE_COMMAND);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
-	HAL_Delay(1);
 }
 
 uint32_t	flash_SectorToAddress(uint32_t	Sector)
@@ -86,7 +82,6 @@ uint32_t	SectorAddr;
 	send_cmd_addr(SECTOR_ERASE_COMMAND,SectorAddr);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
 	flash_WaitForWriteEnd();
-	HAL_Delay(1);
 }
 
 void flash_ReadBytes(uint8_t* pBuffer, uint32_t Address, uint32_t size)
@@ -96,7 +91,6 @@ void flash_ReadBytes(uint8_t* pBuffer, uint32_t Address, uint32_t size)
 	flash_SpiTX(0);
 	HAL_SPI_Receive(&FlashSPIport,pBuffer,size,2000);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
-	HAL_Delay(1);
 }
 
 static void flash_WritePage(uint8_t* pBuffer, uint32_t Address, uint32_t size)
@@ -107,7 +101,6 @@ static void flash_WritePage(uint8_t* pBuffer, uint32_t Address, uint32_t size)
 	HAL_SPI_Transmit(&FlashSPIport,pBuffer,size,100);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
 	flash_WaitForWriteEnd();
-	HAL_Delay(1);
 }
 
 void flash_WriteBytes(uint8_t* pBuffer, uint32_t Address, uint32_t size)
