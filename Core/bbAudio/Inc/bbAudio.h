@@ -63,7 +63,7 @@ uint16_t	control_ready;
 extern	void ControlInit(void);
 
 /* system.c */
-#define	NUMSTAGES		32
+#define	NUMSTAGES		96
 typedef struct _ProgramTypeDef
 {
 	uint32_t valid;
@@ -85,12 +85,25 @@ typedef struct _SystemParametersTypeDef
 	char					Header[8];
 	char					Version[8];
 	uint32_t 				sampling_frequency[2];
+	uint32_t 				flash_capacity;
 }SystemParametersTypeDef;
+
+typedef struct _SystemFlagsTypeDef
+{
+	char					Header[8];
+	char					Version[8];
+	uint32_t 				half_in_ch0;
+	uint32_t 				half_in_ch1;
+	uint32_t 				audioin_buffer_ready_ch0;
+	uint32_t 				audioin_buffer_ready_ch1;
+	uint32_t 				control_ready;
+}SystemFlagsTypeDef;
 
 extern	uint32_t		stage;
 extern	ProgramTypeDef	Program_ch0[NUMSTAGES];
 extern	ProgramTypeDef	Program_ch1[NUMSTAGES];
-extern	SystemParametersTypeDef	System;
+extern	SystemParametersTypeDef	SystemParameters;
+extern	SystemFlagsTypeDef		SystemFlags;
 extern uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel, uint32_t stage_number,char *function);
 extern	void DoFunnelOut(void);
 extern	uint32_t ClearFunnelEntries(void);
@@ -145,7 +158,7 @@ extern	s_rxbuf		usb_rxbuf;
 extern	void change_tim_frequency(uint32_t sampling_frequency , uint32_t channel);
 
 extern	uint32_t get_bufferhalf(uint32_t channel);
-extern	uint32_t get_limits(uint16_t *start,uint16_t *end, uint8_t *half_in);
+extern	uint32_t get_limits(uint16_t *start,uint16_t *end, uint32_t *half_in);
 extern	void clear_buffer_ready_flag(void);
 
 /* Includes, here for back refs */

@@ -26,37 +26,48 @@
 void FlashFormat(void)
 {
 	flash_EraseSector(HEADER_SECTOR);
-	flash_WriteBytes((uint8_t *)&System ,flash_SectorToAddress(HEADER_SECTOR),sizeof(System));
+	flash_WriteBytes((uint8_t *)&SystemParameters ,flash_SectorToAddress(HEADER_SECTOR),sizeof(SystemParameters));
 }
 
 void InitPeripherals(void)
 {
-	ChangeSampleFrequency(System.sampling_frequency[OUTCHANNEL_0] , OUTCHANNEL_0);
-	ChangeSampleFrequency(System.sampling_frequency[OUTCHANNEL_1] , OUTCHANNEL_1);
+	ChangeSampleFrequency(SystemParameters.sampling_frequency[OUTCHANNEL_0] , OUTCHANNEL_0);
+	ChangeSampleFrequency(SystemParameters.sampling_frequency[OUTCHANNEL_1] , OUTCHANNEL_1);
 }
+
+
+uint32_t	FlashIs256	= 0;
 
 uint32_t SetupFlash(void)
 {
+uint32_t	FlashID;
+	FlashID = flash_ReadID();
+	if (( FlashID & 0xff ) == F128 )	/* 128 MBits */
+		SystemParameters.flash_capacity = F128;
+	else if (( FlashID & 0xff ) == F256 )	/* 256 MBits */
+		SystemParameters.flash_capacity = F256;
+	else
+		return -1;
 	LoadSettingsFromFlash();
-	if ( strncmp(System.Header,bbNAME,6 ) != 0 )
+	if ( strncmp(SystemParameters.Header,bbNAME,6 ) != 0 )
 	{
 		bbSystem_SystemSetDefaults();
 		FlashFormat();
 		LoadSettingsFromFlash();
 	}
 	InitPeripherals();
-	return   flash_ReadID();
+	return FlashIs256;
 }
 
 void StoreSettingsInFlash(void)
 {
 	flash_EraseSector(HEADER_SECTOR);
-	flash_WriteBytes((uint8_t *)&System ,flash_SectorToAddress(HEADER_SECTOR),sizeof(System));
+	flash_WriteBytes((uint8_t *)&SystemParameters ,flash_SectorToAddress(HEADER_SECTOR),sizeof(SystemParameters));
 }
 
 void LoadSettingsFromFlash(void)
 {
-	flash_ReadBytes((uint8_t *)&System,flash_SectorToAddress(HEADER_SECTOR),sizeof(System));
+	flash_ReadBytes((uint8_t *)&SystemParameters,flash_SectorToAddress(HEADER_SECTOR),sizeof(SystemParameters));
 }
 
 void StoreProgramInFlash(void)

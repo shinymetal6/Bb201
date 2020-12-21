@@ -6,7 +6,7 @@
  */
 #include "main.h"
 
-static	void static_do_echo(uint32_t *in_buffer,uint32_t *out_buffer, uint8_t *half_in)
+static	void static_do_echo(uint32_t *in_buffer,uint32_t *out_buffer, uint32_t *half_in)
 {
 uint16_t	i,start,end;
 	get_limits(&start,&end,half_in);

@@ -14,25 +14,13 @@ DMA_BUFFER __attribute__ ((aligned (4))) uint16_t		audio_buf_0_2_in[AUDIOBUF_LEN
 DMA_BUFFER __attribute__ ((aligned (4))) uint16_t		audio_buf_1_3_in[AUDIOBUF_LEN];
 DMA_BUFFER __attribute__ ((aligned (4))) uint32_t		audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
 
-/*
-__attribute__ ((aligned (4))) uint16_t		audio_buf_0_2_in[AUDIOBUF_LEN];
-__attribute__ ((aligned (4))) uint16_t		audio_buf_1_3_in[AUDIOBUF_LEN];
-__attribute__ ((aligned (4))) uint32_t		audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
-*/
-uint8_t	half_in_ch0=0 , audioin_buffer_ready_ch0=0;
-uint8_t	half_in_ch1=1 , audioin_buffer_ready_ch1=0;
-uint8_t	audio_delay_index_ch0 = 0 ,audio_delay_index_ch1 = 0;
-
 /* Helper audio functions */
 uint32_t get_bufferhalf(uint32_t channel)
 {
-	if ( channel == OUTCHANNEL_0 )
-		return (uint32_t )&half_in_ch0;
-	else
-		return (uint32_t )&half_in_ch1;
+	return  (channel == OUTCHANNEL_0 ? (uint32_t )&SystemFlags.half_in_ch0 : (uint32_t )&SystemFlags.half_in_ch1);
 }
 
-uint32_t get_limits(uint16_t *start,uint16_t *end, uint8_t *half_in)
+uint32_t get_limits(uint16_t *start,uint16_t *end, uint32_t *half_in)
 {
 	if ( *half_in == HALF_BUFFER_FLAG)
 	{
@@ -49,29 +37,28 @@ uint32_t get_limits(uint16_t *start,uint16_t *end, uint8_t *half_in)
 
 void clear_buffer_ready_flag(void)
 {
-	if ( audioin_buffer_ready_ch0 == 1 )
-		audioin_buffer_ready_ch0 = 0;
-	if ( audioin_buffer_ready_ch1 == 1 )
-		audioin_buffer_ready_ch1 = 0;
+	if ( SystemFlags.audioin_buffer_ready_ch0 == 1 )
+		SystemFlags.audioin_buffer_ready_ch0 = 0;
+	if ( SystemFlags.audioin_buffer_ready_ch1 == 1 )
+		SystemFlags.audioin_buffer_ready_ch1 = 0;
 }
 
 /* Functions */
-
 void GetBufferIn(void)
 {
 uint16_t	i,start,end;
-	if ( audioin_buffer_ready_ch0 == 1 )
+	if ( SystemFlags.audioin_buffer_ready_ch0 == 1 )
 	{
-		get_limits(&start,&end,&half_in_ch0);
+		get_limits(&start,&end,&SystemFlags.half_in_ch0);
 		for ( i=start;i<end;i++)
 		{
 			audio_pipe[CH0_IN][i] = audio_buf_0_2_in[i*2];
 			audio_pipe[CH1_IN][i] = audio_buf_0_2_in[(i*2)+1];
 		}
 	}
-	if ( audioin_buffer_ready_ch1 == 1 )
+	if ( SystemFlags.audioin_buffer_ready_ch1 == 1 )
 	{
-		get_limits(&start,&end,&half_in_ch1);
+		get_limits(&start,&end,&SystemFlags.half_in_ch1);
 		for ( i=start;i<end;i++)
 		{
 			audio_pipe[CH2_IN][i] = audio_buf_1_3_in[i*2];
@@ -101,10 +88,10 @@ void AudioCh1Init(void)
 #endif
 void AudioInit(void)
 {
-	half_in_ch0 = 0;
-	audioin_buffer_ready_ch0 = 0;
-	half_in_ch1 = 0;
-	audioin_buffer_ready_ch1 = 0;
+	SystemFlags.half_in_ch0 = 0;
+	SystemFlags.audioin_buffer_ready_ch0 = 0;
+	SystemFlags.half_in_ch1 = 0;
+	SystemFlags.audioin_buffer_ready_ch1 = 0;
 
 	AudioCh0Init();
 	#ifdef DUAL

@@ -16,5 +16,7 @@ extern	void 		flash_ReadBytes(uint8_t* pBuffer, uint32_t Address, uint32_t size)
 extern	void 		flash_WriteBytes(uint8_t* pBuffer, uint32_t Address, uint32_t size);
 extern	uint32_t 	flash_ReadID(void);
 
+#define	F128	0x18
+#define	F256	0x19
 
 #endif /* BBAUDIO_INC_SPIFLASH_H_ */

@@ -12,8 +12,8 @@
 uint32_t	stage=0;
 __attribute__ ((aligned (16))) ProgramTypeDef			Program_ch0[NUMSTAGES];
 __attribute__ ((aligned (16))) ProgramTypeDef			Program_ch1[NUMSTAGES];
-__attribute__ ((aligned (16))) SystemParametersTypeDef	System;
-
+__attribute__ ((aligned (16))) SystemParametersTypeDef	SystemParameters;
+__attribute__ ((aligned (16))) SystemFlagsTypeDef		SystemFlags;
 
 uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel, uint32_t stage_number,char *function)
 {
@@ -56,7 +56,7 @@ void DoFunnelOut(void)
 uint32_t	i;
 	for(i=0;i<NUMSTAGES;i++)
 	{
-		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( audioin_buffer_ready_ch0 == 1 ) && (Program_ch0[i].valid =  PROGRAM_VALID ))
+		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( SystemFlags.audioin_buffer_ready_ch0 == 1 ) && (Program_ch0[i].valid =  PROGRAM_VALID ))
 		  {
 				debug_1();
 				(*Program_ch0[i].FuncPtr)(Program_ch0[i].in_buffer1,Program_ch0[i].in_buffer2,Program_ch0[i].out_buffer,Program_ch0[i].control_buffer1,Program_ch0[i].control_buffer2,Program_ch0[i].aux,Program_ch0[i].channel);
@@ -67,7 +67,7 @@ uint32_t	i;
 	}
 	for(i=0;i<NUMSTAGES;i++)
 	{
-		  if (( Program_ch1[i].FuncPtr != NULL) && ( Program_ch1[i].channel == OUTCHANNEL_1) && ( audioin_buffer_ready_ch1 == 1 )&& (Program_ch1[i].valid =  PROGRAM_VALID ))
+		  if (( Program_ch1[i].FuncPtr != NULL) && ( Program_ch1[i].channel == OUTCHANNEL_1) && ( SystemFlags.audioin_buffer_ready_ch1 == 1 )&& (Program_ch1[i].valid =  PROGRAM_VALID ))
 		  {
 				debug_1();
 				(*Program_ch1[i].FuncPtr)(Program_ch1[i].in_buffer1,Program_ch1[i].in_buffer2,Program_ch1[i].out_buffer,Program_ch1[i].control_buffer1,Program_ch1[i].control_buffer2,Program_ch1[i].aux,Program_ch1[i].channel);
@@ -81,10 +81,10 @@ uint32_t	i;
 
 void bbSystem_SystemSetDefaults(void)
 {
-	sprintf(System.Header,bbNAME);
-	sprintf(System.Version,bbVERSION);
-	System.sampling_frequency[0] = 96000;
-	System.sampling_frequency[1] = 96000;
+	sprintf(SystemParameters.Header,bbNAME);
+	sprintf(SystemParameters.Version,bbVERSION);
+	SystemParameters.sampling_frequency[0] = 96000;
+	SystemParameters.sampling_frequency[1] = 96000;
 }
 
 void bbSystemInit(void)
@@ -100,9 +100,9 @@ void bbSystemInit(void)
 void ChangeSampleFrequency(uint32_t sampling_frequency , uint32_t channel)
 {
 	if ( channel == OUTCHANNEL_0)
-		System.sampling_frequency[OUTCHANNEL_0] = sampling_frequency;
+		SystemParameters.sampling_frequency[OUTCHANNEL_0] = sampling_frequency;
 	if ( channel == OUTCHANNEL_1)
-		System.sampling_frequency[OUTCHANNEL_1] = sampling_frequency;
+		SystemParameters.sampling_frequency[OUTCHANNEL_1] = sampling_frequency;
 	change_tim_frequency(sampling_frequency , channel);
 }
 

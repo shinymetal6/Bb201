@@ -37,7 +37,7 @@ void five_bytes_commands(void)
  * */
 	if (( strcmp(cmd,"set") == 0 ) && ( strcmp(param,"param") == 0) && ( strcmp(c0,"fs") == 0))
 	{
-		System.sampling_frequency[channel] = p0;
+		SystemParameters.sampling_frequency[channel] = p0;
 		sprintf(USB_TxBuffer,"Sampling frequency set to %d : OK\n\r",p0);
 		ChangeSampleFrequency(p0,channel);
 	}
@@ -131,10 +131,10 @@ uint32_t	channel;
 		sprintf(buf,"Audio samples : %d\n\r",NUMBER_OF_AUDIO_SAMPLES);
 		if (( strlen(USB_TxBuffer) + strlen(buf)) < USB_TXBUF_SIZE )
 			strcat(USB_TxBuffer,buf);
-		sprintf(buf,"Sampling frequency ch0 : %d\n\r",(int )( System.sampling_frequency[0]));
+		sprintf(buf,"Sampling frequency ch0 : %d\n\r",(int )( SystemParameters.sampling_frequency[0]));
 		if (( strlen(USB_TxBuffer) + strlen(buf)) < USB_TXBUF_SIZE )
 			strcat(USB_TxBuffer,buf);
-		sprintf(buf,"Sampling frequency ch1 : %d\n\r",(int )( System.sampling_frequency[1]));
+		sprintf(buf,"Sampling frequency ch1 : %d\n\r",(int )( SystemParameters.sampling_frequency[1]));
 		if (( strlen(USB_TxBuffer) + strlen(buf)) < USB_TXBUF_SIZE )
 			strcat(USB_TxBuffer,buf);
 		sprintf(buf,"Number of Stages : %d\n\r",NUMSTAGES);

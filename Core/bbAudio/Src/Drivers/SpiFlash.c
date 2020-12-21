@@ -65,9 +65,11 @@ uint32_t	flash_AddressToSector(uint32_t	Address)
 
 static uint32_t send_cmd_addr(uint8_t cmd,uint32_t Address)
 {
-uint32_t	ret;
+uint32_t	ret = 0;
 	flash_SpiTX(cmd);
-	ret = flash_SpiTX((Address & 0xFF0000) >> 16) << 16;
+	if ( SystemParameters.flash_capacity == F256 )
+		ret = flash_SpiTX((Address & 0xFF000000) >> 24) << 24;
+	ret |= flash_SpiTX((Address & 0xFF0000) >> 16) << 16;
 	ret |= flash_SpiTX((Address & 0xFF00) >> 8) << 8;
 	ret |= flash_SpiTX(Address & 0xFF);
 	return ret;
@@ -90,6 +92,7 @@ void flash_ReadBytes(uint8_t* pBuffer, uint32_t Address, uint32_t size)
 	send_cmd_addr(READ_COMMAND,Address);
 	flash_SpiTX(0);
 	HAL_SPI_Receive(&FlashSPIport,pBuffer,size,2000);
+	//HAL_SPI_Receive_DMA(&FlashSPIport,pBuffer,size);
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
 }
 
@@ -121,8 +124,8 @@ uint32_t flash_ReadID(void)
 uint32_t fake_addr, ret_val;
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_RESET);
 	flash_SpiTX(READ_ID_COMMAND);
-	fake_addr = (W25Q_DUMMY_BYTE << 16 )|(W25Q_DUMMY_BYTE << 8 )|(W25Q_DUMMY_BYTE << 0 );
-	ret_val = send_cmd_addr(READ_ID_COMMAND,fake_addr);
+	fake_addr = (W25Q_DUMMY_BYTE << 24 )|(W25Q_DUMMY_BYTE << 16 )|(W25Q_DUMMY_BYTE << 8 )|(W25Q_DUMMY_BYTE << 0 );
+	ret_val = send_cmd_addr(READ_ID_COMMAND,fake_addr) >> 8;
 	HAL_GPIO_WritePin(EECS_GPIO_Port,EECS_Pin,GPIO_PIN_SET);
 	return ret_val;
 }

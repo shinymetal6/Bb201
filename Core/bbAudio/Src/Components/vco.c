@@ -73,7 +73,7 @@ uint16_t square[NUMBER_OF_AUDIO_SAMPLES] =
 		0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,
 		0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,0x0fff,
 };
-static	void static_do_vco(uint16_t *wave,uint32_t *out_buffer, uint8_t *half_in, uint32_t freq_control)
+static	void static_do_vco(uint16_t *wave,uint32_t *out_buffer, uint32_t *half_in, uint32_t freq_control)
 {
 uint16_t	i,start,end;
 

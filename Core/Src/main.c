@@ -59,6 +59,8 @@ OPAMP_HandleTypeDef hopamp1;
 OPAMP_HandleTypeDef hopamp2;
 
 SPI_HandleTypeDef hspi4;
+DMA_HandleTypeDef hdma_spi4_rx;
+DMA_HandleTypeDef hdma_spi4_tx;
 
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim6;
@@ -221,14 +223,14 @@ int main(void)
 
   while (1)
   {
-		if (( audioin_buffer_ready_ch0 == 1 ) || ( audioin_buffer_ready_ch1 == 1 ))
+		if (( SystemFlags.audioin_buffer_ready_ch0 == 1 ) || ( SystemFlags.audioin_buffer_ready_ch1 == 1 ))
 		{
 			GetBufferIn();
 			DoFunnelOut();
 		}
 		if ( control_ready == 1 )
 		{
-			control_ready = 0;
+			SystemFlags.control_ready = 0;
 		}
 		CheckUSB();
     /* USER CODE END WHILE */
@@ -925,6 +927,12 @@ static void MX_DMA_Init(void)
   /* DMA1_Stream2_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Stream2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Stream2_IRQn);
+  /* DMA1_Stream3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream3_IRQn);
+  /* DMA1_Stream4_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Stream4_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Stream4_IRQn);
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
