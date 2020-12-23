@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usb_midi.h"
 #include "fir.h"
 
 /* USER CODE END Includes */
@@ -232,7 +233,7 @@ int main(void)
 		{
 			SystemFlags.control_ready = 0;
 		}
-		CheckUSB();
+		//UsbMidiCheck();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
