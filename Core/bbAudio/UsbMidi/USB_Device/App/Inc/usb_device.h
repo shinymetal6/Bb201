@@ -2,7 +2,7 @@
 /**
   ******************************************************************************
   * @file           : usb_device.h
-  * @version        : v1.0_Cube
+  * @version        : v3.0_Cube
   * @brief          : Header for usb_device.c file.
   ******************************************************************************
   * @attention
@@ -76,6 +76,7 @@
   */
 
 /** USB Device initialization function. */
+void MX_USB_Device_Init(uint8_t midi_cdc);
 void MX_USB_DEVICE_Init(void);
 
 /*

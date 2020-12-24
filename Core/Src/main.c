@@ -233,7 +233,7 @@ int main(void)
 		{
 			SystemFlags.control_ready = 0;
 		}
-		//UsbMidiCheck();
+		UsbMidiCheck();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
