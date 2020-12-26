@@ -8,10 +8,10 @@
 #ifndef BBAUDIO_INC_USB_MIDI_H_
 #define BBAUDIO_INC_USB_MIDI_H_
 
-#define	MIDI_RXBUF_SIZE		2048
+#define	MIDI_RXBUF_SIZE			2048
 
-#define	SYSEX			0xF0
-#define	SYSEX_END		0xF7
+#define	SYSEX					0xF0
+#define	SYSEX_END				0xF7
 #define	SYSEX_BB_CLEAR			0x00
 #define	SYSEX_BB_STORESETTINGS	0x01
 #define	SYSEX_BB_LOADSETTINGS	0x02
@@ -19,6 +19,10 @@
 #define	SYSEX_BB_LOADPROGRAMS	0x04
 #define	SYSEX_BB_LOADFIRCOEF	0x05
 #define	SYSEX_BB_LOADWAVEFORM	0x06
+
+#define	CMD_MASK				0xF0
+#define	NOTE_OFF				0x80
+#define	NOTE_ON					0x90
 
 extern	void UsbMidiCheck(void);
 

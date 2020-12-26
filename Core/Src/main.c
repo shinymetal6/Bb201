@@ -214,9 +214,19 @@ int main(void)
   MixerInit     (stage, PIPE2,PIPE3, 	PIPE5,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
   MixerInit     (stage, PIPE4,PIPE5, 	AUDIO_BUFOUT_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
   */
-  q15FirInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0, ffirCoeffs32,OUTCHANNEL_0);
+  //q15FirInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0, ffirCoeffs32,OUTCHANNEL_0);
   //ECHOInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+//#define	TEST_Q15
 
+  InitOscillator(OUTCHANNEL_0,440,OUTCHANNEL_0,SINE);
+  for(uint16_t i=0;i<1;i++)
+  {
+	  ChangeOscillatorFrequency(OUTCHANNEL_0,i,1890);
+  	  EnableOscillator(OUTCHANNEL_0,i);
+	  ChangeOscillatorFrequency(OUTCHANNEL_1,i,1890);
+  	  EnableOscillator(OUTCHANNEL_1,i);
+  }
+  ECHOInit    (stage, OSCILLATOR_0_0_BUF,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
   /* USER CODE END 2 */
 
   /* Infinite loop */

@@ -54,13 +54,15 @@ uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffe
 void DoFunnelOut(void)
 {
 uint32_t	i;
+	debug_1();
+	DoOscillators();
+	debug_0();
+
 	for(i=0;i<NUMSTAGES;i++)
 	{
 		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( SystemFlags.audioin_buffer_ready_ch0 == 1 ) && (Program_ch0[i].valid =  PROGRAM_VALID ))
 		  {
-				debug_1();
 				(*Program_ch0[i].FuncPtr)(Program_ch0[i].in_buffer1,Program_ch0[i].in_buffer2,Program_ch0[i].out_buffer,Program_ch0[i].control_buffer1,Program_ch0[i].control_buffer2,Program_ch0[i].aux,Program_ch0[i].channel);
-				debug_0();
 		  }
 		  else
 			  break;
@@ -69,9 +71,7 @@ uint32_t	i;
 	{
 		  if (( Program_ch1[i].FuncPtr != NULL) && ( Program_ch1[i].channel == OUTCHANNEL_1) && ( SystemFlags.audioin_buffer_ready_ch1 == 1 )&& (Program_ch1[i].valid =  PROGRAM_VALID ))
 		  {
-				debug_1();
 				(*Program_ch1[i].FuncPtr)(Program_ch1[i].in_buffer1,Program_ch1[i].in_buffer2,Program_ch1[i].out_buffer,Program_ch1[i].control_buffer1,Program_ch1[i].control_buffer2,Program_ch1[i].aux,Program_ch1[i].channel);
-				debug_0();
 		  }
 		  else
 			  break;

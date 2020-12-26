@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file           : usbd_cdc_if.c
+  * @file           : usbd_midi_if.c
   * @version        : v3.0_Cube
   * @brief          : Usb device for Virtual Com Port.
   ******************************************************************************
