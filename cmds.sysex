@@ -1,2 +1,20 @@
 Clear : 
 amidi -p hw:2,0,0 -S 'F0 00 62 42 00 00 00 F7'
+
+
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 65 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 49 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 65 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 55 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 45 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 65 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 65 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 75 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 75 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 65 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 75 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 15 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 15 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 25 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 25 0'
+fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 75 0'

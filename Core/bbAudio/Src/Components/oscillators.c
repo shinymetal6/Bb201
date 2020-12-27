@@ -10,13 +10,19 @@
 #include "math.h"
 #include "arm_math.h"
 
+__attribute__ ((aligned (4))) uint32_t	osc_buf[CHANNELS][NUMOSCILLATORS][NUMBER_OF_AUDIO_SAMPLES];
+__attribute__ ((aligned (4))) uint32_t	osc_out[CHANNELS][NUMBER_OF_AUDIO_SAMPLES];
 
 OscillatorsTypeDef	Oscillator[CHANNELS][NUMOSCILLATORS];
+
 float	PI_180	= 	M_PI/180.0f;
 float	PI2		= 	M_PI*2;
 float	DcAdjust = 	2048.0f;
 
-uint32_t	sintab[360] =
+uint32_t	activechannels=0;
+
+#define	WAVETABLE_SIZE	360
+uint32_t	sintab[WAVETABLE_SIZE] =
 {
 		0x800,0x823,0x847,0x86b,0x88e,0x8b2,0x8d6,0x8f9,
 		0x91c,0x940,0x963,0x986,0x9a9,0x9cc,0x9ef,0xa11,
@@ -65,106 +71,164 @@ uint32_t	sintab[360] =
 		0x6e3,0x706,0x729,0x74d,0x771,0x794,0x7b8,0x7dc,
 };
 
-uint32_t uint32_t_sinFunc(uint32_t pos)
+uint32_t	wavetab[WAVETABLE_SIZE];
+
+
+static uint32_t uint32_t_sinFunc(uint32_t pos)
 {
-	if ( pos > 360 )
-		pos = 360;
+	if ( pos > WAVETABLE_SIZE )
+		pos = WAVETABLE_SIZE;
 	return sintab[pos];
 }
 
-float sinFuncCalc(float pos)
+static uint32_t uint32_t_triFunc(uint32_t pos)
 {
-  return arm_sin_f32(pos*2*M_PI);
+	if ( pos > WAVETABLE_SIZE )
+		pos = WAVETABLE_SIZE;
+	return wavetab[pos];
 }
 
-float sawFunc(float pos)
+
+static void uint32_t_triCompile(uint32_t phase)
 {
-  return pos*2-1;
+float 	step_up,step_down,current;
+uint32_t	i;
+
+	step_up = 4095.0f / (float )phase;
+	step_down = 4095.0f / (float )( WAVETABLE_SIZE - phase);
+	current=0;
+	for(i=0;i<WAVETABLE_SIZE;i++)
+	{
+		if ( i < phase )
+		{
+			wavetab[i] = (uint32_t )current;
+			current += step_up;
+		}
+		else
+		{
+			wavetab[i] = (uint32_t )current;
+			current -= step_down;
+		}
+	}
 }
 
-float triangleFunc(float pos)
+static void uint32_t_squareCompile(uint32_t phase)
 {
-  return 1-fabs(pos-0.5)*4;
-}
+uint32_t	i;
 
-float squareFunc(float pos)
-{
-	return pos >= 0.5f ? 0.0f : 1.0f;
+	for(i=0;i<WAVETABLE_SIZE;i++)
+	{
+		if ( i < phase )
+			wavetab[i] = 4095;
+		else
+			wavetab[i] = 0;
+	}
 }
 
 static	void static_process_oscillator(uint32_t channel,uint32_t osc_number)
 {
 uint16_t	i,start,end;
 uint32_t	uint32_t_pos;
-float pos;
 
 	get_limits(&start,&end,(uint32_t *)Oscillator[channel][osc_number].buffer_flag_ptr);
 	for ( i=start;i<end;i++)
 	{
-		pos = Oscillator[channel][osc_number].current_phase / 360.0f;
-		uint32_t_pos = Oscillator[channel][osc_number].current_phase_uint32_t;
-		switch (Oscillator[channel][osc_number].waveform)
+		if ( Oscillator[channel][osc_number].enabled == OSCILLATOR_ENABLED )
 		{
-			//case	SINE	:	osc_buf[channel][osc_number][i] = (uint32_t )((sinFunc(pos)* DcAdjust)+ DcAdjust); break;
-			case	SINE	:	osc_buf[channel][osc_number][i] = uint32_t_sinFunc(uint32_t_pos); break;
-			/*
-			case	TRIANGLE:	osc_buf[channel][osc_number][i] = (uint32_t )((triangleFunc(pos)* DcAdjust)+ DcAdjust); break;
-			case	SAW		:	osc_buf[channel][osc_number][i] = (uint32_t )((sawFunc(pos)* DcAdjust)+ DcAdjust); break;
-			case	SQUARE	:	osc_buf[channel][osc_number][i] = (uint32_t )((squareFunc(pos)* DcAdjust)+ DcAdjust); break;
-			*/
-		}
-		//Oscillator[channel][osc_number].current_phase += Oscillator[channel][osc_number].delta_phase;
-		Oscillator[channel][osc_number].current_phase_uint32_t += Oscillator[channel][osc_number].delta_phase_uint32_t;
-		/*
-		if ( Oscillator[channel][osc_number].current_phase > 360.0f )
-		{
-			if ( Oscillator[channel][osc_number].new_freq != 0 ) // Hard sync
+			uint32_t_pos = (uint32_t )Oscillator[channel][osc_number].current_phase;
+			switch (Oscillator[channel][osc_number].waveform)
 			{
-				Oscillator[channel][osc_number].freq = Oscillator[channel][osc_number].new_freq;
-				Oscillator[channel][osc_number].new_freq = 0;
-				Oscillator[channel][osc_number].delta_phase = 360.0f / ((float )SystemParameters.sampling_frequency[channel] / Oscillator[channel][osc_number].freq);
-
+			case	SINE	:
+				osc_buf[channel][osc_number][i] = uint32_t_sinFunc(uint32_t_pos);
+				break;
+			case	TRIANGLE:
+				osc_buf[channel][osc_number][i] = uint32_t_triFunc(uint32_t_pos);
+				break;
 			}
-			Oscillator[channel][osc_number].current_phase -= 360.0f;
+
+			Oscillator[channel][osc_number].current_phase += Oscillator[channel][osc_number].delta_phase;
+			if ( Oscillator[channel][osc_number].current_phase >= 360.0f )
+			{
+				if ( Oscillator[channel][osc_number].new_freq != 0 ) // Hard sync
+				{
+					Oscillator[channel][osc_number].freq = Oscillator[channel][osc_number].new_freq;
+					Oscillator[channel][osc_number].new_freq = 0;
+					Oscillator[channel][osc_number].delta_phase = 360.0f / ((float )SystemParameters.sampling_frequency[channel] / Oscillator[channel][osc_number].freq);
+				}
+				Oscillator[channel][osc_number].current_phase -= 360.0f;
+			}
 		}
-		*/
-		if ( Oscillator[channel][osc_number].current_phase_uint32_t >= 360 )
-			Oscillator[channel][osc_number].current_phase_uint32_t -= 360;
+		else
+			osc_buf[channel][osc_number][i] = 0;
+	}
+}
+
+void mix_oscillators(void)
+{
+uint16_t	osc_number,channel=0;
+uint16_t	i,start,end;
+
+	for(channel=0;channel<CHANNELS;channel++)
+	{
+		get_limits(&start,&end,(uint32_t *)Oscillator[channel][0].buffer_flag_ptr);
+		for ( i=start;i<end;i++)
+		{
+			osc_out[channel][i] = 0;
+			for(osc_number=0;osc_number<NUMOSCILLATORS;osc_number++)
+				osc_out[channel][i] += osc_buf[channel][osc_number][i] / activechannels;
+		}
 	}
 }
 
 void DoOscillators(void)
 {
-uint16_t	osc_number,channel;
+uint16_t	osc_number,channel,i;
 	for(channel=0;channel<CHANNELS;channel++)
 	{
 		for(osc_number=0;osc_number<NUMOSCILLATORS;osc_number++)
 		{
-			if ( Oscillator[channel][osc_number].enabled == OSCILLATOR_ENABLED )
-				static_process_oscillator(channel,osc_number);
+			static_process_oscillator(channel,osc_number);
 		}
+	}
+	if ( activechannels > 0 )
+		mix_oscillators();
+	else
+	{
+		for ( i=0;i<NUMBER_OF_AUDIO_SAMPLES;i++)
+			osc_out[0][i] = osc_out[1][i] = 0;
 	}
 }
 
-uint32_t EnableOscillator(uint32_t channel,uint32_t osc_number)
+void EnableOscillator(uint32_t channel,uint32_t osc_number)
 {
 	Oscillator[channel][osc_number].enabled = OSCILLATOR_ENABLED;
-	return ((osc_number+1) & (NUMOSCILLATORS-1));
+	activechannels++;
 }
 
-void DisableOscillator(uint32_t channel)
+void DisableOscillator(uint32_t channel,uint32_t osc_number)
+{
+	Oscillator[channel][osc_number].enabled = OSCILLATOR_DISABLED;
+	Oscillator[channel][osc_number].current_phase = 360.0f;
+	activechannels--;
+}
+
+void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, uint32_t freq,uint32_t midi_note)
+{
+	activechannels++;
+	Oscillator[channel][osc_number].enabled = OSCILLATOR_ENABLED;
+	if ( Oscillator[channel][osc_number].current_phase == 0.0f )
+		Oscillator[channel][osc_number].current_phase = 360.0f;
+	Oscillator[channel][osc_number].new_freq = (float )freq;
+	Oscillator[channel][osc_number].midi_note = midi_note;
+}
+
+uint32_t FindOscByMidi(uint32_t channel, uint32_t midi_note)
 {
 uint32_t	i;
 	for(i=0;i<NUMOSCILLATORS;i++)
-		Oscillator[channel][i].enabled = OSCILLATOR_DISABLED;
-}
-
-void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, uint32_t freq)
-{
-	if ( Oscillator[channel][osc_number].enabled == OSCILLATOR_ENABLED )
-		Oscillator[channel][osc_number].new_freq = (float )freq;
-	else
-		Oscillator[channel][osc_number].freq = (float )freq;
+		if ( Oscillator[channel][i].midi_note == midi_note )
+			return i;
+	return NUMOSCILLATORS * 2;
 }
 
 void ChangeOscillatorWaveform(uint32_t channel,uint32_t osc_number, uint32_t waveform)
@@ -177,17 +241,21 @@ void ChangeOscillatorPitchBend(uint32_t channel,uint32_t osc_number, uint32_t pe
 	Oscillator[channel][osc_number].new_freq = Oscillator[channel][osc_number].freq + ((Oscillator[channel][osc_number].freq/100.0f)* (float )percent);
 }
 
-uint32_t InitOscillator(uint32_t osc_number,uint32_t freq, uint32_t channel, uint32_t waveform)
+uint32_t InitOscillators(void)
 {
-	if ( osc_number > NUMOSCILLATORS-1 )
-		return 1;
-	Oscillator[channel][osc_number].enabled = OSCILLATOR_DISABLED;
-	Oscillator[channel][osc_number].freq = (float )freq;
-	Oscillator[channel][osc_number].waveform = waveform;
-	Oscillator[channel][osc_number].current_phase = 0.0f;
-	Oscillator[channel][osc_number].buffer_flag_ptr = get_bufferhalf(channel);
-	Oscillator[channel][osc_number].delta_phase = 360.0f / ((float )SystemParameters.sampling_frequency[channel] / Oscillator[channel][osc_number].freq);
-	Oscillator[channel][osc_number].current_phase_uint32_t = 0;
-	Oscillator[channel][osc_number].delta_phase_uint32_t = (uint32_t )Oscillator[channel][osc_number].delta_phase;
-	return osc_number;
+uint32_t	i;
+	for(i=0;i<NUMOSCILLATORS;i++)
+	{
+		Oscillator[0][i].enabled = OSCILLATOR_DISABLED;
+		Oscillator[0][i].freq = 0.0f;
+		Oscillator[0][i].waveform = SINE;
+		Oscillator[0][i].current_phase = 0.0f;
+		Oscillator[0][i].buffer_flag_ptr = get_bufferhalf(0);
+		Oscillator[1][i].enabled = OSCILLATOR_DISABLED;
+		Oscillator[1][i].freq = 0.0f;
+		Oscillator[1][i].waveform = SINE;
+		Oscillator[1][i].current_phase = 0.0f;
+		Oscillator[1][i].buffer_flag_ptr = get_bufferhalf(1);
+	}
+	return NUMOSCILLATORS;
 }

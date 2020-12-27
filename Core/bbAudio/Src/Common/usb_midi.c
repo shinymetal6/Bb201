@@ -20,8 +20,8 @@ uint16_t 	midi_rx_len;
 
 uint32_t noteToFreq(uint32_t note)
 {
-	uint32_t a = 440; //frequency of A
-    return (uint32_t)((a / 32) * pow(2, ((note - 9) / 12)));
+	float a = 440.0f; //frequency of A
+    return (uint32_t)((a / 32.0f) * powf(2.0f, ((float )(note - 9) / 12.0f)));
 }
 
 static uint16_t SYSEX_ConvertMidiBufOut(uint8_t *buf_out , uint16_t len)
@@ -69,6 +69,7 @@ uint32_t	i,rx7=0;
 
 static void UsbMidiParseSYSEX(void)
 {
+	SYSEX_ConvertMidiBufIn();
 	if ( midi_rx_buf[midi_rx_len-1] != SYSEX_END )
 		return;
 	if ( (midi_rx_buf[1] != 0) || (midi_rx_buf[2] != 'b') || (midi_rx_buf[3] != 'B'))
@@ -84,29 +85,35 @@ static void UsbMidiParseSYSEX(void)
 	}
 }
 
-#define	MIDI_CHANNEL	midi_rx_buf[1] & 0x0f
-#define	MIDI_NOTE		midi_rx_buf[2]
-uint32_t	current_oscillator = 0;
+#define	MIDI_CHANNEL	midi_rx_buffer[1]&0x0f
+#define	MIDI_NOTE		midi_rx_buffer[2]
+#define	MIDI_FREQUENCY	noteToFreq(midi_rx_buffer[2])
+#define	MIDI_VELOCITY	midi_rx_buffer[3]
+
+uint32_t	active_oscillators = 0;
 
 static void UsbMidiParseNoteOFF(void)
 {
-	DisableOscillator(MIDI_CHANNEL);
-	current_oscillator = 0;
+uint32_t	oscnum;
+	oscnum = FindOscByMidi(MIDI_CHANNEL, MIDI_NOTE);
+	if ( oscnum < NUMOSCILLATORS )
+	{
+		active_oscillators--;
+		DisableOscillator(MIDI_CHANNEL,oscnum);
+	}
 }
 
 static void UsbMidiParseNoteON(void)
 {
-uint32_t	next_oscillator;
-	ChangeOscillatorFrequency(MIDI_CHANNEL,current_oscillator, noteToFreq(MIDI_NOTE));
-	next_oscillator = EnableOscillator(MIDI_CHANNEL,current_oscillator);
-	current_oscillator = next_oscillator;
+	ChangeOscillatorFrequency(MIDI_CHANNEL,active_oscillators, MIDI_FREQUENCY,MIDI_NOTE);
+	active_oscillators++;
 }
 
 static void UsbMidiParser(void)
 {
 uint8_t	cmd;
-	SYSEX_ConvertMidiBufIn();
-	cmd = midi_rx_buf[0] & CMD_MASK;
+
+	cmd = midi_rx_buffer[1] & CMD_MASK;
 
 	switch(cmd)
 	{

@@ -148,62 +148,66 @@ typedef struct _OscillatorsTypeDef
 	uint32_t 				enabled;
 	uint32_t 				waveform;
 	uint32_t 				channel;
+	uint32_t 				midi_note;
+	uint32_t 				local_controller_ptr;
 	uint32_t 				buffer_flag_ptr;
 	float 					freq;
-	q15_t 					freq_q15;
 	float 					new_freq;
-	q15_t 					new_freq_q15;
 	float 					pitch_bend;
 	float 					current_phase;
-	uint32_t 				current_phase_uint32_t;
 	float 					delta_phase;
-	uint32_t 				delta_phase_uint32_t;
 }OscillatorsTypeDef;
 
 extern	OscillatorsTypeDef	Oscillator[CHANNELS][NUMOSCILLATORS];
-extern	uint32_t InitOscillator(uint32_t osc_number,uint32_t freq, uint32_t channel, uint32_t waveform);
+extern	uint32_t InitOscillators(void);
 extern	uint32_t osc_buf[CHANNELS][NUMOSCILLATORS][128];
+extern	uint32_t osc_out[CHANNELS][128];
 extern	void DoOscillators(void);
-extern	uint32_t EnableOscillator(uint32_t channel,uint32_t osc_number);
-extern	void DisableOscillator(uint32_t channel);
-extern	void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, uint32_t freq);
+extern	void EnableOscillator(uint32_t channel,uint32_t osc_number);
+extern	void DisableOscillator(uint32_t channel,uint32_t osc_number);
+extern	void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, uint32_t freq,uint32_t midi_note);
 extern	void ChangeOscillatorWaveform(uint32_t channel,uint32_t osc_number, uint32_t waveform);
 extern	void ChangeOscillatorPitchBend(uint32_t channel,uint32_t osc_number, uint32_t percent);
+extern	uint32_t FindOscByMidi(uint32_t channel, uint32_t midi_note);
 extern	uint32_t noteToFreq(uint32_t note);
 
-#define	OSCILLATOR_0_0_BUF				(uint32_t )&osc_buf[0][0]
-#define	OSCILLATOR_0_1_BUF				(uint32_t )&osc_buf[0][1]
-#define	OSCILLATOR_0_2_BUF				(uint32_t )&osc_buf[0][2]
-#define	OSCILLATOR_0_3_BUF				(uint32_t )&osc_buf[0][3]
-#define	OSCILLATOR_0_4_BUF				(uint32_t )&osc_buf[0][4]
-#define	OSCILLATOR_0_5_BUF				(uint32_t )&osc_buf[0][5]
-#define	OSCILLATOR_0_6_BUF				(uint32_t )&osc_buf[0][6]
-#define	OSCILLATOR_0_7_BUF				(uint32_t )&osc_buf[0][7]
-#define	OSCILLATOR_0_8_BUF				(uint32_t )&osc_buf[0][8]
-#define	OSCILLATOR_0_9_BUF				(uint32_t )&osc_buf[0][9]
-#define	OSCILLATOR_0_10_BUF				(uint32_t )&osc_buf[0][10]
-#define	OSCILLATOR_0_11_BUF				(uint32_t )&osc_buf[0][11]
-#define	OSCILLATOR_0_12_BUF				(uint32_t )&osc_buf[0][12]
-#define	OSCILLATOR_0_13_BUF				(uint32_t )&osc_buf[0][13]
-#define	OSCILLATOR_0_14_BUF				(uint32_t )&osc_buf[0][14]
-#define	OSCILLATOR_0_15_BUF				(uint32_t )&osc_buf[0][15]
+#define	OSCILLATOR_0_MIX				(uint32_t )&osc_out[OUTCHANNEL_0]
+#define	OSCILLATOR_1_MIX				(uint32_t )&osc_out[OUTCHANNEL_1]
 
-#define	OSCILLATOR_1_0_BUF				(uint32_t )&osc_buf[1][0]
-#define	OSCILLATOR_1_1_BUF				(uint32_t )&osc_buf[1][1]
-#define	OSCILLATOR_1_2_BUF				(uint32_t )&osc_buf[1][2]
-#define	OSCILLATOR_1_3_BUF				(uint32_t )&osc_buf[1][3]
-#define	OSCILLATOR_1_4_BUF				(uint32_t )&osc_buf[1][4]
-#define	OSCILLATOR_1_5_BUF				(uint32_t )&osc_buf[1][5]
-#define	OSCILLATOR_1_6_BUF				(uint32_t )&osc_buf[1][6]
-#define	OSCILLATOR_1_7_BUF				(uint32_t )&osc_buf[1][7]
-#define	OSCILLATOR_1_8_BUF				(uint32_t )&osc_buf[1][8]
-#define	OSCILLATOR_1_9_BUF				(uint32_t )&osc_buf[1][9]
-#define	OSCILLATOR_1_10_BUF				(uint32_t )&osc_buf[1][10]
-#define	OSCILLATOR_1_11_BUF				(uint32_t )&osc_buf[1][11]
-#define	OSCILLATOR_1_12_BUF				(uint32_t )&osc_buf[1][12]
-#define	OSCILLATOR_1_13_BUF				(uint32_t )&osc_buf[1][13]
-#define	OSCILLATOR_1_14_BUF				(uint32_t )&osc_buf[1][14]
-#define	OSCILLATOR_1_15_BUF				(uint32_t )&osc_buf[1][15]
+#define	OSCILLATOR_0_0_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][0]
+#define	OSCILLATOR_0_1_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][1]
+#define	OSCILLATOR_0_2_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][2]
+#define	OSCILLATOR_0_3_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][3]
+#define	OSCILLATOR_0_4_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][4]
+#define	OSCILLATOR_0_5_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][5]
+#define	OSCILLATOR_0_6_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][6]
+#define	OSCILLATOR_0_7_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][7]
+#define	OSCILLATOR_0_8_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][8]
+#define	OSCILLATOR_0_9_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][9]
+#define	OSCILLATOR_0_10_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][10]
+#define	OSCILLATOR_0_11_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][11]
+#define	OSCILLATOR_0_12_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][12]
+#define	OSCILLATOR_0_13_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][13]
+#define	OSCILLATOR_0_14_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][14]
+#define	OSCILLATOR_0_15_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][15]
+
+#define	OSCILLATOR_1_0_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][0]
+#define	OSCILLATOR_1_1_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][1]
+#define	OSCILLATOR_1_2_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][2]
+#define	OSCILLATOR_1_3_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][3]
+#define	OSCILLATOR_1_4_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][4]
+#define	OSCILLATOR_1_5_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][5]
+#define	OSCILLATOR_1_6_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][6]
+#define	OSCILLATOR_1_7_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][7]
+#define	OSCILLATOR_1_8_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][8]
+#define	OSCILLATOR_1_9_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][9]
+#define	OSCILLATOR_1_10_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][10]
+#define	OSCILLATOR_1_11_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][11]
+#define	OSCILLATOR_1_12_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][12]
+#define	OSCILLATOR_1_13_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][13]
+#define	OSCILLATOR_1_14_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][14]
+#define	OSCILLATOR_1_15_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][15]
+
 
 /* usb_commands.c */
 #define	USB_TXBUF_SIZE	2048

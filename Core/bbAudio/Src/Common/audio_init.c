@@ -12,7 +12,6 @@
 DMA_BUFFER __attribute__ ((aligned (4))) uint16_t	audio_buf_0_2_in[AUDIOBUF_LEN];
 DMA_BUFFER __attribute__ ((aligned (4))) uint16_t	audio_buf_1_3_in[AUDIOBUF_LEN];
 DMA_BUFFER __attribute__ ((aligned (4))) uint32_t	audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
-__attribute__ ((aligned (4))) uint32_t	osc_buf[CHANNELS][NUMOSCILLATORS][NUMBER_OF_AUDIO_SAMPLES];
 
 /* Helper audio functions */
 uint32_t get_bufferhalf(uint32_t channel)
