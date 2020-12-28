@@ -10,18 +10,16 @@
 #include "math.h"
 #include "arm_math.h"
 
-__attribute__ ((aligned (4))) uint32_t	osc_buf[CHANNELS][NUMOSCILLATORS][NUMBER_OF_AUDIO_SAMPLES];
-__attribute__ ((aligned (4))) uint32_t	osc_out[CHANNELS][NUMBER_OF_AUDIO_SAMPLES];
-
-OscillatorsTypeDef	Oscillator[CHANNELS][NUMOSCILLATORS];
-
-float	PI_180	= 	M_PI/180.0f;
-float	PI2		= 	M_PI*2;
-float	DcAdjust = 	2048.0f;
-
-uint32_t	activechannels=0;
-
 #define	WAVETABLE_SIZE	360
+
+__attribute__ ((aligned (16))) uint32_t	osc_buf[CHANNELS][NUMOSCILLATORS][NUMBER_OF_AUDIO_SAMPLES];
+__attribute__ ((aligned (16))) uint32_t	osc_out[CHANNELS][NUMBER_OF_AUDIO_SAMPLES];
+
+__attribute__ ((aligned (16)))	uint32_t	sqrtab[CHANNELS][WAVETABLE_SIZE];
+__attribute__ ((aligned (16)))	uint32_t	tritab[CHANNELS][WAVETABLE_SIZE];
+
+__attribute__ ((aligned (16))) OscillatorsTypeDef	Oscillator[CHANNELS][NUMOSCILLATORS];
+
 uint32_t	sintab[WAVETABLE_SIZE] =
 {
 		0x800,0x823,0x847,0x86b,0x88e,0x8b2,0x8d6,0x8f9,
@@ -71,25 +69,22 @@ uint32_t	sintab[WAVETABLE_SIZE] =
 		0x6e3,0x706,0x729,0x74d,0x771,0x794,0x7b8,0x7dc,
 };
 
-uint32_t	wavetab[WAVETABLE_SIZE];
+uint32_t	activechannels=0;
 
-
-static uint32_t uint32_t_sinFunc(uint32_t pos)
+static uint32_t sinFunc(uint32_t pos)
 {
-	if ( pos > WAVETABLE_SIZE )
-		pos = WAVETABLE_SIZE;
-	return sintab[pos];
+	uint32_t *wave = sintab + pos;
+	return *wave;
 }
 
-static uint32_t uint32_t_triFunc(uint32_t pos)
+static uint32_t lookupFunc(uint32_t lookup_ptr,uint32_t pos)
 {
-	if ( pos > WAVETABLE_SIZE )
-		pos = WAVETABLE_SIZE;
-	return wavetab[pos];
+	uint32_t *wave = (uint32_t *)lookup_ptr + pos;
+	return *wave;
 }
 
 
-static void uint32_t_triCompile(uint32_t phase)
+static void triCompile(uint32_t channel,uint32_t phase)
 {
 float 	step_up,step_down,current;
 uint32_t	i;
@@ -101,29 +96,38 @@ uint32_t	i;
 	{
 		if ( i < phase )
 		{
-			wavetab[i] = (uint32_t )current;
+			tritab[channel][i] = (uint32_t )current;
 			current += step_up;
 		}
 		else
 		{
-			wavetab[i] = (uint32_t )current;
+			tritab[channel][i] = (uint32_t )current;
 			current -= step_down;
 		}
 	}
 }
 
-static void uint32_t_squareCompile(uint32_t phase)
+static void squareCompile(uint32_t channel,uint32_t phase)
 {
 uint32_t	i;
 
 	for(i=0;i<WAVETABLE_SIZE;i++)
 	{
 		if ( i < phase )
-			wavetab[i] = 4095;
+			sqrtab[channel][i] = 4095;
 		else
-			wavetab[i] = 0;
+			sqrtab[channel][i] = 0;
 	}
 }
+#ifdef	SW_SINE
+static void sinCompile(void)
+{
+uint32_t	i;
+
+	for(i=0;i<WAVETABLE_SIZE;i++)
+        sintab[i] = 2048 + (unsigned int )(sinf(((float )i*M_PI*2)/360.0f)* 2047.0f);
+}
+#endif
 
 static	void static_process_oscillator(uint32_t channel,uint32_t osc_number)
 {
@@ -139,21 +143,30 @@ uint32_t	uint32_t_pos;
 			switch (Oscillator[channel][osc_number].waveform)
 			{
 			case	SINE	:
-				osc_buf[channel][osc_number][i] = uint32_t_sinFunc(uint32_t_pos);
+				osc_buf[channel][osc_number][i] = sinFunc(uint32_t_pos);
 				break;
 			case	TRIANGLE:
-				osc_buf[channel][osc_number][i] = uint32_t_triFunc(uint32_t_pos);
+				osc_buf[channel][osc_number][i] = lookupFunc((uint32_t )&tritab[channel],uint32_t_pos);
+				break;
+			case	SQUARE:
+				osc_buf[channel][osc_number][i] = lookupFunc((uint32_t )&sqrtab[channel],uint32_t_pos);
 				break;
 			}
-
+			osc_out[channel][i] += ((osc_buf[channel][osc_number][i]*Oscillator[channel][osc_number].volume)>>DAC_BIT) / activechannels;
 			Oscillator[channel][osc_number].current_phase += Oscillator[channel][osc_number].delta_phase;
 			if ( Oscillator[channel][osc_number].current_phase >= 360.0f )
 			{
-				if ( Oscillator[channel][osc_number].new_freq != 0 ) // Hard sync
+				if (( Oscillator[channel][osc_number].flags  & CHANGE_FREQUENCY_FLAG ) == CHANGE_FREQUENCY_FLAG) // Hard sync
 				{
 					Oscillator[channel][osc_number].freq = Oscillator[channel][osc_number].new_freq;
-					Oscillator[channel][osc_number].new_freq = 0;
 					Oscillator[channel][osc_number].delta_phase = 360.0f / ((float )SystemParameters.sampling_frequency[channel] / Oscillator[channel][osc_number].freq);
+					Oscillator[channel][osc_number].flags  &= ~CHANGE_FREQUENCY_FLAG;
+				}
+				if ((( Oscillator[channel][osc_number].flags  & CHANGE_PHASE_FLAG ) == CHANGE_PHASE_FLAG) &&  (Oscillator[channel][osc_number].waveform != SINE ))
+				{
+					triCompile(channel,Oscillator[channel][osc_number].phase);
+					squareCompile(channel,Oscillator[channel][osc_number].phase);
+					Oscillator[channel][osc_number].flags  &= ~CHANGE_PHASE_FLAG;
 				}
 				Oscillator[channel][osc_number].current_phase -= 360.0f;
 			}
@@ -163,39 +176,20 @@ uint32_t	uint32_t_pos;
 	}
 }
 
-void mix_oscillators(void)
-{
-uint16_t	osc_number,channel=0;
-uint16_t	i,start,end;
-
-	for(channel=0;channel<CHANNELS;channel++)
-	{
-		get_limits(&start,&end,(uint32_t *)Oscillator[channel][0].buffer_flag_ptr);
-		for ( i=start;i<end;i++)
-		{
-			osc_out[channel][i] = 0;
-			for(osc_number=0;osc_number<NUMOSCILLATORS;osc_number++)
-				osc_out[channel][i] += osc_buf[channel][osc_number][i] / activechannels;
-		}
-	}
-}
-
 void DoOscillators(void)
 {
-uint16_t	osc_number,channel,i;
+uint16_t	osc_number,channel;
+uint16_t	i,start,end;
+
+	get_limits(&start,&end,(uint32_t *)Oscillator[0][0].buffer_flag_ptr); // Use osc 0 to get limits
+	for ( i=start;i<end;i++)
+		osc_out[0][i] = osc_out[1][i] = 0;
 	for(channel=0;channel<CHANNELS;channel++)
 	{
 		for(osc_number=0;osc_number<NUMOSCILLATORS;osc_number++)
 		{
 			static_process_oscillator(channel,osc_number);
 		}
-	}
-	if ( activechannels > 0 )
-		mix_oscillators();
-	else
-	{
-		for ( i=0;i<NUMBER_OF_AUDIO_SAMPLES;i++)
-			osc_out[0][i] = osc_out[1][i] = 0;
 	}
 }
 
@@ -212,14 +206,36 @@ void DisableOscillator(uint32_t channel,uint32_t osc_number)
 	activechannels--;
 }
 
-void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, uint32_t freq,uint32_t midi_note)
+void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, float freq,uint32_t midi_note)
 {
 	activechannels++;
 	Oscillator[channel][osc_number].enabled = OSCILLATOR_ENABLED;
 	if ( Oscillator[channel][osc_number].current_phase == 0.0f )
 		Oscillator[channel][osc_number].current_phase = 360.0f;
+	Oscillator[channel][osc_number].delta_phase = 90.0f;
+	Oscillator[channel][osc_number].flags |= CHANGE_FREQUENCY_FLAG;
 	Oscillator[channel][osc_number].new_freq = (float )freq;
 	Oscillator[channel][osc_number].midi_note = midi_note;
+}
+
+void SetOscillatorGroup(uint32_t channel,uint32_t osc_number,uint32_t group)
+{
+	Oscillator[channel][osc_number].osc_group = group;
+}
+
+void UnSetOscillatorGroup(uint32_t channel,uint32_t osc_number,uint32_t group)
+{
+	Oscillator[channel][osc_number].osc_group = (channel << 16) | osc_number;
+}
+
+void SetOscillatorFixedF(uint32_t channel,uint32_t osc_number)
+{
+	Oscillator[channel][osc_number].flags |= FIXED_FREQUENCY_FLAG;
+}
+
+void SetOscillatorFloatF(uint32_t channel,uint32_t osc_number)
+{
+	Oscillator[channel][osc_number].flags &= ~FIXED_FREQUENCY_FLAG;
 }
 
 uint32_t FindOscByMidi(uint32_t channel, uint32_t midi_note)
@@ -236,26 +252,58 @@ void ChangeOscillatorWaveform(uint32_t channel,uint32_t osc_number, uint32_t wav
 	Oscillator[channel][osc_number].waveform = waveform;
 }
 
+void ChangeOscillatorVolume(uint32_t channel,uint32_t osc_number, uint32_t volume)
+{
+	Oscillator[channel][osc_number].volume = volume*32;
+}
+
+void ChangeOscillatorPhase(uint32_t channel,uint32_t osc_number, uint32_t phase)
+{
+	Oscillator[channel][osc_number].phase = phase;
+	Oscillator[channel][osc_number].flags  |= CHANGE_PHASE_FLAG;
+}
+
 void ChangeOscillatorPitchBend(uint32_t channel,uint32_t osc_number, uint32_t percent)
 {
 	Oscillator[channel][osc_number].new_freq = Oscillator[channel][osc_number].freq + ((Oscillator[channel][osc_number].freq/100.0f)* (float )percent);
 }
 
+void setOscillatorParams(uint32_t channel,uint32_t osc_number,uint32_t freq,uint32_t volume,uint32_t phase,uint32_t waveform,uint32_t osc_group,uint32_t flags)
+{
+	Oscillator[channel][osc_number].freq = (float )freq;
+	Oscillator[channel][osc_number].phase = (float )phase;
+	Oscillator[channel][osc_number].volume = volume*32;
+	switch ( waveform )
+	{
+	case	SINE		:	Oscillator[channel][osc_number].waveform = SINE;break;
+	case	TRIANGLE	:	Oscillator[channel][osc_number].waveform = TRIANGLE;break;
+	case	SQUARE		:	Oscillator[channel][osc_number].waveform = SQUARE;break;
+	default				:	Oscillator[channel][osc_number].waveform = SINE;break;
+	}
+	Oscillator[channel][osc_number].osc_group = osc_group;
+	Oscillator[channel][osc_number].flags = flags;
+}
+
 uint32_t InitOscillators(void)
 {
-uint32_t	i;
-	for(i=0;i<NUMOSCILLATORS;i++)
+uint16_t	osc_number,channel;
+	for(channel=0;channel<CHANNELS;channel++)
 	{
-		Oscillator[0][i].enabled = OSCILLATOR_DISABLED;
-		Oscillator[0][i].freq = 0.0f;
-		Oscillator[0][i].waveform = SINE;
-		Oscillator[0][i].current_phase = 0.0f;
-		Oscillator[0][i].buffer_flag_ptr = get_bufferhalf(0);
-		Oscillator[1][i].enabled = OSCILLATOR_DISABLED;
-		Oscillator[1][i].freq = 0.0f;
-		Oscillator[1][i].waveform = SINE;
-		Oscillator[1][i].current_phase = 0.0f;
-		Oscillator[1][i].buffer_flag_ptr = get_bufferhalf(1);
+		for(osc_number=0;osc_number<NUMOSCILLATORS;osc_number++)
+		{
+			Oscillator[channel][osc_number].enabled = OSCILLATOR_DISABLED;
+			Oscillator[channel][osc_number].freq = 0.0f;
+			Oscillator[channel][osc_number].waveform = SINE;
+			Oscillator[channel][osc_number].volume = DAC_RESOLUTION;
+			Oscillator[channel][osc_number].current_phase = 0.0f;
+			Oscillator[channel][osc_number].delta_phase = 1.0f;
+			Oscillator[channel][osc_number].buffer_flag_ptr = get_bufferhalf(channel);
+			Oscillator[channel][osc_number].flags = NO_FLAG;
+			Oscillator[channel][osc_number].osc_group = (channel << 16) | osc_number;
+		}
+		triCompile(channel,180);
+		squareCompile(channel,180);
 	}
-	return NUMOSCILLATORS;
+	//sinCompile();
+	return NUMOSCILLATORS*2;
 }

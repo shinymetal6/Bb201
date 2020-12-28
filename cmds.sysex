@@ -1,20 +1,158 @@
 Clear : 
 amidi -p hw:2,0,0 -S 'F0 00 62 42 00 00 00 F7'
 
+Oscillator settings:
+	cmd : SYSEX_BB_SETOSCILLATOR ( 10 )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		freq : ignored unless flags is not FIXED_FREQUENCY in <flags>
+		volume : number of the volume controller, 0..128
+		phase : ignored if waveform is SINE. defines the peak position, expressed n degrees ( 0 - 360 )
+		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
+		osc_group : all the osc of the same group are started and stopped together with the same midi note on
+		flags : FIXED_FREQUENCY : ignores midi and generates at frequency <freq> ( 30 or 31 )
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <freq*10000> <freq*1000> <freq*100> <freq*10> <freq*1> <phase*100> <phase*10> <phase*1> <waveform> <osc_group> <flags> F7
+	
+		Example1 : sine at channel 0 oscillator 0 fixed 2345Hz with volume 128 with phase 123 ( useless ) with osc group 4 no fixed frequency
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 30 30 30 32 33 34 35 31 32 38 31 32 33 30 34 30 F7'
+	
+		Example2 : sine at channel 0 oscillator 0 fixed 2345Hz with volume 64 with phase 123 ( useless ) with osc group 4 no fixed frequency
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 30 30 30 32 33 34 35 30 36 34 31 32 33 30 34 30 F7'
 
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 65 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 49 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 65 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 55 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 45 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 65 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 65 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 75 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 75 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 65 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 75 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 15 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 15 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '90 25 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 25 0'
-fil@fil-HP-Z840-Workstation:~$ amidi -p hw:2,0,0 -S '80 75 0'
+	cmd : SYSEX_BB_SETOSCWAVE ( 11 )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <waveform> F7
+		
+		Example1 : sine at channel 0 oscillator 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 11 30 30 30 F7'
+		
+		Example2 : tringle at channel 0 oscillator 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 11 30 30 31 F7'	
+		
+		Example3 : square at channel 0 oscillator 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 11 30 30 32 F7'
+
+	cmd : SYSEX_BB_SETOSCVOL ( 12 )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		volume : number of the volume controller, 0..127
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <volume> F7
+		
+		Example1 : oscillator 0 channel 0 volume 64 ( half )
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 12 30 30 30 36 33 F7'
+		
+		Example2 : oscillator 0 channel 0 volume 127 ( full )
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 12 30 30 31 32 37 F7'
+	
+		Example3 : oscillator 0 channel 0 volume 0 ( off )
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 12 30 30 30 30 30 F7'
+
+	cmd : SYSEX_BB_SETOSCPHASE ( 13 )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		phase : phase of wave ( not for sin wave ), 0..359
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <phase> F7
+		
+		Example1 : oscillator 0 channel 0 phase 180 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 13 30 30 31 38 30 F7'
+		
+		Example1 : oscillator 0 channel 0 phase 270 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 13 30 30 32 37 30 F7'
+	
+		Example3 : oscillator 0 channel 0 phase 90 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 13 30 30 30 39 30 F7'
+
+LFO settings:
+	cmd : SYSEX_BB_SETLFO ( 18 )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		freq : ignored unless flags is not FIXED_FREQUENCY in <flags>
+		volume : number of the volume controller, 0..128
+		phase : ignored if waveform is SINE. defines the peak position, expressed n degrees ( 0 - 360 )
+		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
+		flags : FIXED_FREQUENCY : ignores midi and generates at frequency <freq> ( 30 or 31 )
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <freq*10000> <freq*1000> <freq*100> <freq*10> <freq*1> <phase*100> <phase*10> <phase*1> <waveform> <osc_group> <flags> F7
+	
+		Example1 : sine at channel 0 lfo 0 fixed 2345Hz with volume 128 with phase 123 ( useless ) no fixed frequency
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 18 30 30 30 32 33 34 35 31 32 38 31 32 33 30 30 F7'
+	
+		Example2 : sine at channel 0 lfo 0 fixed 2345Hz with volume 64 with phase 123 ( useless ) no fixed frequency
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 18 30 30 30 32 33 34 35 30 36 34 31 32 33 30 30 F7'
+
+	cmd : SYSEX_BB_SETLFOWAVE ( 19 )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <waveform> F7
+		
+		Example1 : sine at channel 0 oscillator 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 19 30 30 30 F7'
+		
+		Example2 : tringle at channel 0 oscillator 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 19 30 30 31 F7'	
+		
+		Example3 : square at channel 0 oscillator 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 19 30 30 32 F7'
+
+	cmd : SYSEX_BB_SETLFOVOL ( 1A )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		volume : number of the volume controller, 0..127
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <volume> F7
+		
+		Example1 : oscillator 0 channel 0 volume 64 ( half )
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 1A 30 30 30 36 33 F7'
+		
+		Example2 : oscillator 0 channel 0 volume 127 ( full )
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 1A 30 30 31 32 37 F7'
+	
+		Example3 : oscillator 0 channel 0 volume 0 ( off )
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 1A 30 30 30 30 30 F7'
+
+	cmd : SYSEX_BB_SETLFOPHASE ( 1B )
+		channel : can be 0 or 1 (30 or 31 )
+		oscnumber : oscillator number
+		phase : phase of wave ( not for sin wave ), 0..359
+		SYSEX Message :
+		F0 00 62 42 <cmd> <channel> <oscnumber > <phase> F7
+		
+		Example1 : oscillator 0 channel 0 phase 180 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 1B 30 30 31 38 30 F7'
+		
+		Example1 : oscillator 0 channel 0 phase 270 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 1B 30 30 32 37 30 F7'
+	
+		Example3 : oscillator 0 channel 0 phase 90 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 1B 30 30 30 39 30 F7'
+
+Components Management:
+	cmd : SYSEX_BB_COMP_INSERT ( 20 )
+		channel : can be 0 or 1 (30 or 31 ), is the logical output pipe. Has no relations with the physical output channel.
+		component : component id, see below
+		pipein0 : number of pipe in 0, see below
+		pipein1 : number of pipe in 1, see below
+		pipeout : number of pipe out, see below
+		controller0 : controller type, midi if < 127 , local if 127:191 , from lfo if > 192
+		controller1 : controller type, midi if < 127 , local if 127:191 , from lfo if > 192
+		parameter0 : depends on component, see below
+		parameter1 : depends on component, see below
+		
+		component id : 
+						0 : echo : replicates pipein0 to pipeout, has no controllers
+						1 : mixer : mixes pipein0 with pipein1 , controller 0 set volume for pipe0, controller 1 set volume for pipe1
+						2 : fir : applies fir on pipein0, table is indexed by parameter0, controller 0 set output volume
+						3 : ring : modulate pipein0 with pipein1 , controller 0 set volume for pipe0, controller 1 set volume for pipe1
+						4 : vca : attenuator on pipein0 to pipeout, controller 0 set attenuation for pipe0
+						5 : lfo out : has no pipein0 and pipein1 , output on pipeout, controller 0 set frequency, controller 1 set volume,
+								note : lfo waveform and phase must be set by lfo commands
+		
+

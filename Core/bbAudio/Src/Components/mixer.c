@@ -16,9 +16,9 @@ uint16_t	i,start,end;
 		out_buffer[i] = (in_buffer1[i] + in_buffer2[i] ) >> 1;
 }
 
-uint32_t MixerInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel)
+uint32_t MixerInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control0,uint32_t control1, uint32_t channel)
 {
-	setOutStage((uint32_t )&static_do_mixer, in_buffer1, in_buffer2 , out_buffer, control, get_bufferhalf(channel), 0, channel, in_stage,"Mixer");
+	setOutStage((uint32_t )&static_do_mixer, in_buffer1, in_buffer2 , out_buffer, control0, control1, get_bufferhalf(channel), channel, in_stage,"Mixer");
 
 	stage++;
 	return 0;

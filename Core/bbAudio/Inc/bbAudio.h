@@ -12,6 +12,9 @@
 
 #define	ARM_MATH_CM7
 #define	TIMERS_FREQ	240000000
+#define	DAC_BIT				12
+#define	DAC_RESOLUTION		(1<<12)
+#define	HALF_DAC_RESOLUTION	(DAC_RESOLUTION/2)
 
 #define	bbNAME		"B201_a"
 #define	bbVERSION	"0.0.1"
@@ -47,6 +50,7 @@ extern	void AudioInit(void);
 #define		SQUARE					2
 #define		SAW						3
 #define DMA_BUFFER __attribute__((section(".audio_buffers")))
+#define OSC_BUFFER __attribute__((section(".osc_buffers")))
 
 /* Controls */
 #define		CONTROLBUF_LEN					6
@@ -123,7 +127,7 @@ extern	void bbSystem_SystemSetDefaults(void);
 extern	void GetBufferIn(void);
 extern	void do_workbuf_out(void);
 /* mixer.c */
-extern	uint32_t MixerInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel);
+extern	uint32_t MixerInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control0,uint32_t control1, uint32_t channel);
 /* fir.c */
 extern	uint32_t q15FirInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,float fFIRCoef[64], uint32_t channel);
 /* float_fir.c */
@@ -136,12 +140,43 @@ extern	uint32_t ECHOInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buff
 #define	INTERNAL_VCACONTROL	0
 #define	EXTERNAL_VCACONTROL	1
 extern	uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,uint32_t control, uint32_t channel);
+/* lfo.c */
+#define	LFOTAB_SIZE		1440
+#define	NUM_LFO			4
+extern	uint32_t InitLfo(void);
+extern	void DoLfo(void);
+extern	void ChangeLFOPhase(uint32_t channel,uint32_t lfo_number, uint32_t phase);
+extern	void ChangeLFOVolume(uint32_t channel,uint32_t lfo_number, uint32_t volume);
+extern	void ChangeLFOWaveform(uint32_t channel,uint32_t lfo_number, uint32_t waveform);
+extern	void setLFOParams(uint32_t channel,uint32_t lfo_number,uint32_t freq,uint32_t volume,uint32_t phase,uint32_t waveform,uint32_t osc_group,uint32_t flags);
+extern	void ChangeLFOFrequency(uint32_t channel,uint32_t lfo_number, float freq);
+extern	__attribute__ ((aligned (16))) uint32_t				lfo_buf[CHANNELS][NUM_LFO][128];
+extern	__attribute__ ((aligned (16))) uint32_t				lfo_out[CHANNELS][128];
+
+#define	LFO_0_MIX				(uint32_t )&osc_out[OUTCHANNEL_0]
+#define	LFO_1_MIX				(uint32_t )&osc_out[OUTCHANNEL_1]
+
+#define	LFO_0_0_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][0]
+#define	LFO_0_1_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][1]
+#define	LFO_0_2_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][2]
+#define	LFO_0_3_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][3]
+
+#define	LFO_1_0_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][0]
+#define	LFO_1_1_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][1]
+#define	LFO_1_2_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][2]
+#define	LFO_1_3_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][3]
+
 /* ring_mod.c */
 extern	uint32_t RINGInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel);
 /* oscillators.c */
-#define		NUMOSCILLATORS			16
+#define		NUMOSCILLATORS			64
 #define		OSCILLATOR_ENABLED		1
 #define		OSCILLATOR_DISABLED		0
+#define		FIXED_FREQUENCY_FLAG	0x80000000
+#define		CHANGE_FREQUENCY_FLAG	0x40000000
+#define		CHANGE_PHASE_FLAG		0x20000000
+#define		NO_FLAG					0x00000000
+#define		MAX_VOLUME				DAC_RESOLUTION
 
 typedef struct _OscillatorsTypeDef
 {
@@ -149,11 +184,15 @@ typedef struct _OscillatorsTypeDef
 	uint32_t 				waveform;
 	uint32_t 				channel;
 	uint32_t 				midi_note;
+	uint32_t 				volume;
+	uint32_t 				osc_group;
+	uint32_t 				flags;
 	uint32_t 				local_controller_ptr;
 	uint32_t 				buffer_flag_ptr;
 	float 					freq;
 	float 					new_freq;
 	float 					pitch_bend;
+	uint32_t				phase;
 	float 					current_phase;
 	float 					delta_phase;
 }OscillatorsTypeDef;
@@ -165,11 +204,15 @@ extern	uint32_t osc_out[CHANNELS][128];
 extern	void DoOscillators(void);
 extern	void EnableOscillator(uint32_t channel,uint32_t osc_number);
 extern	void DisableOscillator(uint32_t channel,uint32_t osc_number);
-extern	void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, uint32_t freq,uint32_t midi_note);
+extern	void ChangeOscillatorFrequency(uint32_t channel,uint32_t osc_number, float freq,uint32_t midi_note);
 extern	void ChangeOscillatorWaveform(uint32_t channel,uint32_t osc_number, uint32_t waveform);
+extern	void ChangeOscillatorPhase(uint32_t channel,uint32_t osc_number, uint32_t phase);
 extern	void ChangeOscillatorPitchBend(uint32_t channel,uint32_t osc_number, uint32_t percent);
+extern	void ChangeOscillatorVolume(uint32_t channel,uint32_t osc_number, uint32_t volume);
+
+extern	void setOscillatorParams(uint32_t channel,uint32_t osc_number,uint32_t freq,uint32_t volume,uint32_t phase,uint32_t waveform,uint32_t osc_group,uint32_t flags);
 extern	uint32_t FindOscByMidi(uint32_t channel, uint32_t midi_note);
-extern	uint32_t noteToFreq(uint32_t note);
+extern	float noteToFreq(uint32_t note);
 
 #define	OSCILLATOR_0_MIX				(uint32_t )&osc_out[OUTCHANNEL_0]
 #define	OSCILLATOR_1_MIX				(uint32_t )&osc_out[OUTCHANNEL_1]

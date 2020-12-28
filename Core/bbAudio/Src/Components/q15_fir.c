@@ -24,7 +24,7 @@ uint16_t				i,k,start,end;
 		input[k] = (q15_t)(in_buffer[i]);
 	arm_fir_fast_q15(&S[in_stage], input , output, HALF_NUMBER_OF_AUDIO_SAMPLES);
 	for(i=start,k=0;i<end;i++,k++)
-		out_buffer[i] = (uint32_t)(output[k]+2048);
+		out_buffer[i] = (uint32_t)(output[k]+HALF_DAC_RESOLUTION);
 }
 
 uint32_t q15FirInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,float fFIRCoef[NUM_TAPS], uint32_t channel)

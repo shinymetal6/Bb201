@@ -218,7 +218,7 @@ int main(void)
   //ECHOInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
 //#define	TEST_Q15
 
-  InitOscillators();
+
   //EnableOscillator(OUTCHANNEL_0,0);
   /*
   for(uint16_t i=0;i<1;i++)
@@ -229,7 +229,8 @@ int main(void)
   	  EnableOscillator(OUTCHANNEL_1,i);
   }
   */
-  ECHOInit    (stage, OSCILLATOR_0_MIX,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  //ECHOInit    (stage, OSCILLATOR_0_MIX,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  ECHOInit    (stage, LFO_0_MIX,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
   /* USER CODE END 2 */
 
   /* Infinite loop */

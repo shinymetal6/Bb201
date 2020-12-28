@@ -56,7 +56,7 @@ void DoFunnelOut(void)
 uint32_t	i;
 	debug_1();
 	DoOscillators();
-	debug_0();
+	DoLfo();
 
 	for(i=0;i<NUMSTAGES;i++)
 	{
@@ -77,6 +77,7 @@ uint32_t	i;
 			  break;
 	}
 	clear_buffer_ready_flag();
+	debug_0();
 }
 
 void bbSystem_SystemSetDefaults(void)
@@ -93,6 +94,8 @@ void bbSystemInit(void)
 	SetupFlash();
 	AudioInit();
 	ControlInit();
+	InitOscillators();
+	InitLfo();
 	HAL_TIM_PWM_Start_IT(&htim15,TIM_CHANNEL_1);
 
 }
