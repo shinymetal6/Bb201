@@ -56,8 +56,10 @@ void DoFunnelOut(void)
 uint32_t	i;
 	debug_1();
 	DoOscillators();
+	debug_0();
+	/*
 	DoLfo();
-
+	*/
 	for(i=0;i<NUMSTAGES;i++)
 	{
 		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( SystemFlags.audioin_buffer_ready_ch0 == 1 ) && (Program_ch0[i].valid =  PROGRAM_VALID ))
@@ -77,7 +79,6 @@ uint32_t	i;
 			  break;
 	}
 	clear_buffer_ready_flag();
-	debug_0();
 }
 
 void bbSystem_SystemSetDefaults(void)
@@ -95,7 +96,9 @@ void bbSystemInit(void)
 	AudioInit();
 	ControlInit();
 	InitOscillators();
+	/*
 	InitLfo();
+	*/
 	HAL_TIM_PWM_Start_IT(&htim15,TIM_CHANNEL_1);
 
 }

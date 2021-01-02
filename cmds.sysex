@@ -3,136 +3,41 @@ amidi -p hw:2,0,0 -S 'F0 00 62 42 00 00 00 F7'
 
 Oscillator settings:
 	cmd : SYSEX_BB_SETOSCILLATOR ( 10 )
-		channel : can be 0 or 1 (30 or 31 )
 		oscnumber : oscillator number
-		freq : ignored unless flags is not FIXED_FREQUENCY in <flags>
-		volume : number of the volume controller, 0..128
-		phase : ignored if waveform is SINE. defines the peak position, expressed n degrees ( 0 - 360 )
-		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
-		osc_group : all the osc of the same group are started and stopped together with the same midi note on
-		flags : FIXED_FREQUENCY : ignores midi and generates at frequency <freq> ( 30 or 31 )
+		subcmd : SYSEX_BB_SETOSCFREQ ( 00 )
+				ref_channel : reference channel for sampling frequency, 0 or 1
+				freq : ignored unless flags is not OSCILLATOR_FREE_RUNNING in <flags>,
+						<freq*10000> <freq*1000> <freq*100> <freq*10> <freq*1> 
+		subcmd : SYSEX_BB_SETOSCVOL ( 01 )
+				volume : volume : 0..127
+		subcmd : SYSEX_BB_SETOSCWAVE ( 02 )
+				waveform  : SINE, TRIANGLE, SQUARE : 0,1,2
+		subcmd : SYSEX_BB_SETOSCPHASE ( 03 )
+				phase : number of the volume controller, 0..127.ignored if waveform is SINE,defines the duty ( 64 is 50% )
+		subcmd : SYSEX_BB_SETOSCGROUP ( 04 )
+				group : group this oscillator belongs
+		subcmd : SYSEX_BB_SETOSCFLAG ( 05 )
+				flag : 	OSCILLATOR_DISABLED 		: oscillator off 	( 00 )
+						OSCILLATOR_MIDI 			: listen midi 		( 01 )
+						OSCILLATOR_FREE_RUNNING 	: always enabled 	( 02 )
+						OSCILLATOR_LOCAL_CONTROL 	: local controller 	( 60 .. 6f )
 		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <freq*10000> <freq*1000> <freq*100> <freq*10> <freq*1> <phase*100> <phase*10> <phase*1> <waveform> <osc_group> <flags> F7
+				F0 00 62 42 <cmd> <oscnumber > <subcmd> <subcmd parameter> .. <F7>
 	
-		Example1 : sine at channel 0 oscillator 0 fixed 2345Hz with volume 128 with phase 123 ( useless ) with osc group 4 no fixed frequency
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 30 30 30 32 33 34 35 31 32 38 31 32 33 30 34 30 F7'
-	
-		Example2 : sine at channel 0 oscillator 0 fixed 2345Hz with volume 64 with phase 123 ( useless ) with osc group 4 no fixed frequency
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 30 30 30 32 33 34 35 30 36 34 31 32 33 30 34 30 F7'
-
-	cmd : SYSEX_BB_SETOSCWAVE ( 11 )
-		channel : can be 0 or 1 (30 or 31 )
-		oscnumber : oscillator number
-		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
-		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <waveform> F7
-		
-		Example1 : sine at channel 0 oscillator 0
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 11 30 30 30 F7'
-		
-		Example2 : tringle at channel 0 oscillator 0
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 11 30 30 31 F7'	
-		
-		Example3 : square at channel 0 oscillator 0
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 11 30 30 32 F7'
-
-	cmd : SYSEX_BB_SETOSCVOL ( 12 )
-		channel : can be 0 or 1 (30 or 31 )
-		oscnumber : oscillator number
-		volume : number of the volume controller, 0..127
-		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <volume> F7
-		
-		Example1 : oscillator 0 channel 0 volume 64 ( half )
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 12 30 30 30 36 33 F7'
-		
-		Example2 : oscillator 0 channel 0 volume 127 ( full )
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 12 30 30 31 32 37 F7'
-	
-		Example3 : oscillator 0 channel 0 volume 0 ( off )
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 12 30 30 30 30 30 F7'
-
-	cmd : SYSEX_BB_SETOSCPHASE ( 13 )
-		channel : can be 0 or 1 (30 or 31 )
-		oscnumber : oscillator number
-		phase : phase of wave ( not for sin wave ), 0..359
-		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <phase> F7
-		
-		Example1 : oscillator 0 channel 0 phase 180 
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 13 30 30 31 38 30 F7'
-		
-		Example1 : oscillator 0 channel 0 phase 270 
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 13 30 30 32 37 30 F7'
-	
-		Example3 : oscillator 0 channel 0 phase 90 
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 13 30 30 30 39 30 F7'
-
-LFO settings:
-	cmd : SYSEX_BB_SETLFO ( 18 )
-		channel : can be 0 or 1 (30 or 31 )
-		oscnumber : oscillator number
-		freq : ignored unless flags is not FIXED_FREQUENCY in <flags>
-		volume : number of the volume controller, 0..128
-		phase : ignored if waveform is SINE. defines the peak position, expressed n degrees ( 0 - 360 )
-		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
-		flags : FIXED_FREQUENCY : ignores midi and generates at frequency <freq> ( 30 or 31 )
-		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <freq*10000> <freq*1000> <freq*100> <freq*10> <freq*1> <phase*100> <phase*10> <phase*1> <waveform> <osc_group> <flags> F7
-	
-		Example1 : sine at channel 0 lfo 0 fixed 2345Hz with volume 128 with phase 123 ( useless ) no fixed frequency
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 18 30 30 30 32 33 34 35 31 32 38 31 32 33 30 30 F7'
-	
-		Example2 : sine at channel 0 lfo 0 fixed 2345Hz with volume 64 with phase 123 ( useless ) no fixed frequency
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 18 30 30 30 32 33 34 35 30 36 34 31 32 33 30 30 F7'
-
-	cmd : SYSEX_BB_SETLFOWAVE ( 19 )
-		channel : can be 0 or 1 (30 or 31 )
-		oscnumber : oscillator number
-		waveform : defines type of wave : SINE, TRIANGLE, SQUARE ( 30 , 31 , 32 )
-		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <waveform> F7
-		
-		Example1 : sine at channel 0 oscillator 0
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 19 30 30 30 F7'
-		
-		Example2 : tringle at channel 0 oscillator 0
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 19 30 30 31 F7'	
-		
-		Example3 : square at channel 0 oscillator 0
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 19 30 30 32 F7'
-
-	cmd : SYSEX_BB_SETLFOVOL ( 1A )
-		channel : can be 0 or 1 (30 or 31 )
-		oscnumber : oscillator number
-		volume : number of the volume controller, 0..127
-		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <volume> F7
-		
-		Example1 : oscillator 0 channel 0 volume 64 ( half )
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 1A 30 30 30 36 33 F7'
-		
-		Example2 : oscillator 0 channel 0 volume 127 ( full )
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 1A 30 30 31 32 37 F7'
-	
-		Example3 : oscillator 0 channel 0 volume 0 ( off )
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 1A 30 30 30 30 30 F7'
-
-	cmd : SYSEX_BB_SETLFOPHASE ( 1B )
-		channel : can be 0 or 1 (30 or 31 )
-		oscnumber : oscillator number
-		phase : phase of wave ( not for sin wave ), 0..359
-		SYSEX Message :
-		F0 00 62 42 <cmd> <channel> <oscnumber > <phase> F7
-		
-		Example1 : oscillator 0 channel 0 phase 180 
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 1B 30 30 31 38 30 F7'
-		
-		Example1 : oscillator 0 channel 0 phase 270 
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 1B 30 30 32 37 30 F7'
-	
-		Example3 : oscillator 0 channel 0 phase 90 
-		amidi -p hw:2,0,0 -S 'F0 00 62 42 1B 30 30 30 39 30 F7'
+		Example1 : oscillator 0 initialized at 2345Hz ref channel 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 00 30 32 33 34 35 F7'
+				 : same oscillator 0 initialized at 1234Hz ref channel 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 00 30 31 32 33 34 F7'
+		Example2 : oscillator 0 wave SINE 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 01 00 F7'
+		Example3 : oscillator 0 volume 127 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 02 7F F7'
+		Example4 : oscillator 0 phase 180 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 03 7F F7'
+		Example5 : oscillator 0 group 0 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 04 7F F7'
+		Example5 : oscillator set as midi 
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 05 01 F7'
 
 Components Management:
 	cmd : SYSEX_BB_COMP_INSERT ( 20 )

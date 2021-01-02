@@ -230,7 +230,18 @@ int main(void)
   }
   */
   //ECHOInit    (stage, OSCILLATOR_0_MIX,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-  ECHOInit    (stage, LFO_0_MIX,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  /*
+  ECHOInit    (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[0],OUTCHANNEL_0);
+  ECHOInit    (stage, (uint32_t )&audio_pipe[0],(uint32_t )&audio_pipe[1],OUTCHANNEL_0);
+  ECHOInit    (stage, (uint32_t )&audio_pipe[1],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  */
+  //void SetOscillatorParams(uint16_t osc_number, uint16_t sampling_frequency, uint16_t freq, uint16_t volume, uint16_t phase, uint16_t osc_group, uint16_t enabled)
+
+  //SetOscillatorParams(0, SystemParameters.sampling_frequency[OUTCHANNEL_0], 440, SINE, MAX_VOLUME, 0,0,OSCILLATOR_ENABLED);
+
+  ECHOInit    (stage, (uint32_t )&osc_buf[OUTCHANNEL_0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  //ECHOInit    (stage, (uint32_t )&osc_output_buffer,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */

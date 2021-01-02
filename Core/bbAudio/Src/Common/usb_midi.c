@@ -75,83 +75,37 @@ static void SysCmdsSYSEX(uint8_t cmd)
 	default : break;
 	}
 }
-static void SetOscillator(void)
-{
-uint32_t channel, osc_number, freq, volume, phase, waveform, osc_group, flags;
-	channel = midi_rx_buf[5]&0x0f;
-	osc_number = midi_rx_buf[6]&0x0f;
-	freq =
-			((midi_rx_buf[7]&0x0f)*10000)+
-			((midi_rx_buf[8]&0x0f)*1000)+
-			((midi_rx_buf[9]&0x0f)*100)+
-			((midi_rx_buf[10]&0x0f)*10)+
-			((midi_rx_buf[11]&0x0f));
-	volume =
-			((midi_rx_buf[12]&0x0f)*100)+
-			((midi_rx_buf[13]&0x0f)*10)+
-			((midi_rx_buf[14]&0x0f));
-	phase =
-			((midi_rx_buf[15]&0x0f)*100)+
-			((midi_rx_buf[16]&0x0f)*10)+
-			((midi_rx_buf[17]&0x0f));
-	waveform = midi_rx_buf[18]&0x0f;
-	osc_group = midi_rx_buf[19]&0x0f;
-	flags = midi_rx_buf[20]&0x0f;
-
-	setOscillatorParams( channel, osc_number, freq, volume, phase, waveform, osc_group, flags);
-}
-
-static void SetLfo(void)
-{
-uint32_t channel, lfo_number, freq, volume, phase, waveform, osc_group, flags;
-	channel = midi_rx_buf[5]&0x0f;
-	lfo_number = midi_rx_buf[6]&0x0f;
-	freq =
-			((midi_rx_buf[7]&0x0f)*10000)+
-			((midi_rx_buf[8]&0x0f)*1000)+
-			((midi_rx_buf[9]&0x0f)*100)+
-			((midi_rx_buf[10]&0x0f)*10)+
-			((midi_rx_buf[11]&0x0f));
-	volume =
-			((midi_rx_buf[12]&0x0f)*100)+
-			((midi_rx_buf[13]&0x0f)*10)+
-			((midi_rx_buf[14]&0x0f));
-	phase =
-			((midi_rx_buf[15]&0x0f)*100)+
-			((midi_rx_buf[16]&0x0f)*10)+
-			((midi_rx_buf[17]&0x0f));
-	waveform = midi_rx_buf[18]&0x0f;
-	osc_group = midi_rx_buf[19]&0x0f;
-	flags = midi_rx_buf[20]&0x0f;
-
-	setLFOParams( channel, lfo_number, freq, volume, phase, waveform, osc_group, flags);
-	EnableLFO(channel, lfo_number);
-}
 
 static void OscCmdsSYSEX(uint8_t cmd)
 {
-uint32_t channel = midi_rx_buf[5]&0x0f, osc_number=midi_rx_buf[6]&0x0f,parameter;
+uint32_t osc_number=midi_rx_buf[5]&0x0f,parameter=midi_rx_buf[7];
+uint32_t ref_freq,freq;
 
-	parameter =	(((midi_rx_buf[7]&0x0f)*100)+((midi_rx_buf[8]&0x0f)*10)+((midi_rx_buf[9]&0x0f))); // default parameter
-	switch (midi_rx_buf[4])
+	if (midi_rx_buf[4] == SYSEX_BB_SETOSCILLATOR )
 	{
-	case	SYSEX_BB_SETOSCILLATOR	:	SetOscillator();break;
-	case	SYSEX_BB_SETOSCWAVE		:
-		parameter = midi_rx_buf[7]&0x0f;
-		ChangeOscillatorWaveform( channel, osc_number, parameter );break;
-	case	SYSEX_BB_SETOSCVOL		:
-		ChangeOscillatorVolume( channel, osc_number, parameter);break;
-	case	SYSEX_BB_SETOSCPHASE		:
-		ChangeOscillatorPhase( channel, osc_number, parameter);break;
-	case	SYSEX_BB_SETLFO	:	SetLfo();break;
-	case	SYSEX_BB_SETLFOWAVE		:
-		parameter = midi_rx_buf[7]&0x0f;
-		ChangeOscillatorWaveform( channel, osc_number, parameter );break;
-	case	SYSEX_BB_SETLFOVOL		:
-		ChangeOscillatorVolume( channel, osc_number, parameter);break;
-	case	SYSEX_BB_SETLFOPHASE		:
-		ChangeOscillatorPhase( channel, osc_number, parameter);break;
-	default : break;
+		switch (midi_rx_buf[6])
+		{
+		case	SYSEX_BB_SETOSCFREQ	:
+			ref_freq = SystemParameters.sampling_frequency[(parameter & 0x03)];
+			freq =	(((midi_rx_buf[8]&0x0f)*1000)+((midi_rx_buf[9]&0x0f)*100)+((midi_rx_buf[10]&0x0f)*10)+((midi_rx_buf[11]&0x0f)));
+			SetOscillatorFrequency(osc_number, ref_freq, freq, 4096, 0);
+			break;
+		case	SYSEX_BB_SETOSCWAVE	:
+			SetOscillatorWaveform(osc_number, parameter & 0x07, 127);
+			break;
+		case	SYSEX_BB_SETOSCVOL	:
+			SetOscillatorVolume( osc_number, parameter<<5);
+			break;
+		case	SYSEX_BB_SETOSCPHASE	:
+			SetOscillatorPhase( osc_number, parameter);
+			break;
+		case	SYSEX_BB_SETOSCGROUP	:
+			SetOscillatorGroup( osc_number, parameter);
+			break;
+		case	SYSEX_BB_SETOSCFLAG	:
+			SetOscillatorFlag( osc_number, parameter);
+			break;
+		}
 	}
 }
 
@@ -194,7 +148,7 @@ static void UsbMidiParseSYSEX(void)
 	switch (midi_rx_buf[4] & SYSEX_BB_CMDMASK)
 	{
 	case	SYSEX_BB_SYSTEM			:	SysCmdsSYSEX(midi_rx_buf[4]); break;
-	case	SYSEX_BB_OSCLFO			:	OscCmdsSYSEX(midi_rx_buf[4]); break;
+	case	SYSEX_BB_OSC			:	OscCmdsSYSEX(midi_rx_buf[4]); break;
 	case	SYSEX_BB_COMPONENTS		:	CompCmdsSYSEX(midi_rx_buf[4]); break;
 	default : break;
 	}
@@ -205,16 +159,18 @@ static void UsbMidiParseSYSEX(void)
 #define	MIDI_FREQUENCY	noteToFreq(midi_rx_buffer[2])
 #define	MIDI_VELOCITY	midi_rx_buffer[3]
 
-uint32_t	active_oscillators = 0;
+int32_t	active_oscillators = -1;
 
 static void UsbMidiParseNoteOFF(void)
 {
 uint32_t	oscnum;
-	oscnum = FindOscByMidi(MIDI_CHANNEL, MIDI_NOTE);
+	if ( active_oscillators < 0 )
+		return;
+	oscnum = FindOscByMidi( MIDI_NOTE);
 	if ( oscnum < NUMOSCILLATORS )
 	{
+		DisableOscillator(oscnum);
 		active_oscillators--;
-		DisableOscillator(MIDI_CHANNEL,oscnum);
 	}
 }
 
@@ -226,8 +182,10 @@ float		freq;
 	channel = midi_rx_buffer[1]&0x0f;
 	freq = noteToFreq(midi_note);
 	if ( freq > 0.0f )
-		ChangeOscillatorFrequency(channel,active_oscillators, freq, midi_note);
-	active_oscillators++;
+	{
+		active_oscillators++;
+		SetOscillatorFrequency(active_oscillators, SystemParameters.sampling_frequency[channel], freq, MAX_VOLUME, midi_note);
+	}
 }
 
 static void UsbMidiParser(void)
