@@ -239,8 +239,8 @@ int main(void)
 
   //SetOscillatorParams(0, SystemParameters.sampling_frequency[OUTCHANNEL_0], 440, SINE, MAX_VOLUME, 0,0,OSCILLATOR_ENABLED);
 
-  ECHOInit    (stage, (uint32_t )&osc_buf[OUTCHANNEL_0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-  //ECHOInit    (stage, (uint32_t )&osc_output_buffer,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  //ECHOInit    (stage, (uint32_t )&osc_buf[OUTCHANNEL_0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  ECHOInit    (stage, (uint32_t )&osc_output_buffer,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
 
   /* USER CODE END 2 */
 

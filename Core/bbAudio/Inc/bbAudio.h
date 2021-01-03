@@ -29,7 +29,6 @@
 #define	FULL_BUFFER_FLAG	0
 #define	BIT_RESOLUTION		12
 
-
 #define		NUMBER_OF_AUDIO_SAMPLES			512
 #define		HALF_NUMBER_OF_AUDIO_SAMPLES	NUMBER_OF_AUDIO_SAMPLES/2
 #define		AUDIOBUF_LEN					NUMBER_OF_AUDIO_SAMPLES*2
@@ -168,7 +167,7 @@ extern	uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffe
 /* ring_mod.c */
 extern	uint32_t RINGInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel);
 /* oscillators.c */
-#define		NUMOSCILLATORS				128
+#define		NUMOSCILLATORS				256
 #define		OSCILLATOR_DISABLED			0
 #define		OSCILLATOR_MIDI				1
 #define		OSCILLATOR_FREE_RUNNING		2

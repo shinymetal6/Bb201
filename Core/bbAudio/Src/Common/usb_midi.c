@@ -76,6 +76,7 @@ static void SysCmdsSYSEX(uint8_t cmd)
 	}
 }
 
+#define	MIDI_MAX_VOLUME	127
 static void OscCmdsSYSEX(uint8_t cmd)
 {
 uint32_t osc_number=midi_rx_buf[5]&0x0f,parameter=midi_rx_buf[7];
@@ -88,13 +89,13 @@ uint32_t ref_freq,freq;
 		case	SYSEX_BB_SETOSCFREQ	:
 			ref_freq = SystemParameters.sampling_frequency[(parameter & 0x03)];
 			freq =	(((midi_rx_buf[8]&0x0f)*1000)+((midi_rx_buf[9]&0x0f)*100)+((midi_rx_buf[10]&0x0f)*10)+((midi_rx_buf[11]&0x0f)));
-			SetOscillatorFrequency(osc_number, ref_freq, freq, 4096, 0);
+			SetOscillatorFrequency(osc_number, ref_freq, freq, MIDI_MAX_VOLUME, 0);
 			break;
 		case	SYSEX_BB_SETOSCWAVE	:
 			SetOscillatorWaveform(osc_number, parameter & 0x07, 127);
 			break;
 		case	SYSEX_BB_SETOSCVOL	:
-			SetOscillatorVolume( osc_number, parameter<<5);
+			SetOscillatorVolume( osc_number, parameter);
 			break;
 		case	SYSEX_BB_SETOSCPHASE	:
 			SetOscillatorPhase( osc_number, parameter);

@@ -28,6 +28,8 @@ Oscillator settings:
 		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 00 30 32 33 34 35 F7'
 				 : same oscillator 0 initialized at 1234Hz ref channel 0
 		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 00 30 31 32 33 34 F7'
+				 : oscillator 1 initialized at 1600Hz ref channel 0
+		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 01 00 30 31 36 30 30 F7'
 		Example2 : oscillator 0 wave SINE 
 		amidi -p hw:2,0,0 -S 'F0 00 62 42 10 00 01 00 F7'
 		Example3 : oscillator 0 volume 127 

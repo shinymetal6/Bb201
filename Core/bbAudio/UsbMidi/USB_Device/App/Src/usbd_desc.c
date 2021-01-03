@@ -5,9 +5,9 @@
 
 #define USBD_VID     1155
 #define USBD_LANGID_STRING     1033
-#define USBD_MANUFACTURER_STRING     "FuntasticAudio"
+#define USBD_MANUFACTURER_STRING     "bBoards"
 #define USBD_PID     22336
-#define USBD_PRODUCT_STRING     "FuntasticMidi"
+#define USBD_PRODUCT_STRING     "bB201-A"
 #define USBD_CONFIGURATION_STRING     "MIDI Config"
 #define USBD_INTERFACE_STRING     "MIDI Interface"
 
