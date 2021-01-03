@@ -123,14 +123,14 @@ float	delta_phase;
 	delta_phase = (float )WAVETABLE_SIZE / ((float )sampling_frequency / (float )freq);
 	Oscillator[osc_number].delta_phase = (uint16_t )(delta_phase * 256.0f);
 	Oscillator[osc_number].current_phase = 0;
-	Oscillator[osc_number].volume = volume*VOLUME_MULT;
 	if ( control == OSCILLATOR_FREE_RUNNING)
-		Oscillator[osc_number].current_volume = volume*VOLUME_MULT;
+		SetOscillatorVolume(osc_number,volume);
 	else
 		Oscillator[osc_number].current_volume = 0;
 	Oscillator[osc_number].phase = phase;
 	Oscillator[osc_number].osc_group = osc_group;
 	Oscillator[osc_number].detune = 0;
+
 }
 
 void SetOscillatorFrequency(uint16_t osc_number, uint32_t sampling_frequency, uint16_t freq, uint16_t volume, uint16_t midi_note)
@@ -143,7 +143,7 @@ float	delta_phase;
 	Oscillator[osc_number].current_phase = 0;
 	Oscillator[osc_number].midi_note = midi_note;
 	Oscillator[osc_number].volume = volume*VOLUME_MULT;
-	Oscillator[osc_number].current_volume = volume*VOLUME_MULT;
+	SetOscillatorVolume(osc_number,volume);
 }
 
 void SetOscillatorDeTune(uint16_t osc_number, uint16_t detune)
@@ -156,12 +156,12 @@ float	delta_phase;
 
 void EnableOscillator(uint32_t osc_number)
 {
-	Oscillator[osc_number].current_volume = Oscillator[osc_number].volume;
+	SetOscillatorVolume(osc_number,Oscillator[osc_number].volume);
 }
 
 void DisableOscillator(uint16_t osc_number)
 {
-	Oscillator[osc_number].current_volume = 0;
+	SetOscillatorVolume(osc_number,0);
 }
 
 void SetOscillatorGroup(uint16_t osc_number,uint32_t group)
@@ -175,7 +175,7 @@ void SetOscillatorFlag(uint16_t osc_number,uint32_t flags)
 	if ( flags != OSCILLATOR_FREE_RUNNING )
 		Oscillator[osc_number].current_volume = 0;
 	else
-		Oscillator[osc_number].current_volume = Oscillator[osc_number].volume;
+		SetOscillatorVolume(osc_number,Oscillator[osc_number].volume);
 }
 
 uint32_t FindOscByMidi(uint32_t midi_note)

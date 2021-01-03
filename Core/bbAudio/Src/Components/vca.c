@@ -6,7 +6,7 @@
  */
 #include "main.h"
 
-static	void static_do_vca(uint32_t *in_buffer,uint32_t *out_buffer, uint16_t *control, uint32_t *half_in)
+static	void static_do_vca(uint16_t *in_buffer,uint16_t *out_buffer, uint16_t *control, uint32_t *half_in)
 {
 uint16_t	i,start,end;
 

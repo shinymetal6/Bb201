@@ -7,7 +7,7 @@
 
 #include "main.h"
 
-static	void static_do_mixer(uint32_t *in_buffer1,uint32_t *in_buffer2,uint32_t *out_buffer, uint16_t *control, uint32_t *half_in)
+static	void static_do_mixer(uint16_t *in_buffer1,uint16_t *in_buffer2,uint16_t *out_buffer, uint16_t *control, uint32_t *half_in)
 {
 uint16_t	i,start,end;
 

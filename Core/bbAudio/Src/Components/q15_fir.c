@@ -16,7 +16,7 @@ q15_t					input[HALF_NUMBER_OF_AUDIO_SAMPLES],output[HALF_NUMBER_OF_AUDIO_SAMPLE
 q15_t 					firState[NUMSTAGES][NUM_TAPS+BLOCK_SIZE];
 arm_fir_instance_q15	S[NUMSTAGES];
 
-static	void static_do_fir(uint32_t *in_buffer,uint32_t *out_buffer,uint32_t *half_in,uint32_t in_stage)
+static	void static_do_fir(uint16_t *in_buffer,uint16_t *out_buffer,uint32_t *half_in,uint32_t in_stage)
 {
 uint16_t				i,k,start,end;
 	get_limits(&start,&end,half_in);
