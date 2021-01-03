@@ -7,11 +7,12 @@
 
 #include "main.h"
 
-void moog2(float frequency , float resonance, float in)
+void vcf1(uint16_t freq , uint16_t res, uint16_t inputsample)
 {
 // Lowpass  output:  b4
 // Highpass output:  in - b4;
 // Bandpass output:  3.0f * (b3 - b4);
+float frequency = (float )freq, resonance = (float )res, in = (float )inputsample;
 float f, p, q;             //filter coefficients
 float b0=0.0f, b1=0.0f, b2=0.0f, b3=0.0f, b4=0.0f;  //filter buffers (beware denormals!)
 float t1, t2;              //temporary buffers
@@ -34,7 +35,7 @@ float t1, t2;              //temporary buffers
   b0 = in;
 }
 
-double moog(double input, double fcutoff, double resonance)
+double vcf2(double input, double fcutoff, double resonance)
 {
 /*
 in[x] and out[x] are member variables, init to 0.0 the controls:
@@ -58,3 +59,19 @@ res = resonance [0, 4] -> [no resonance, self-oscillation]
   in4  = out3;
   return out4;
 }
+
+static	void static_do_vcf(uint16_t *in_buffer,uint16_t *out_buffer, uint32_t *half_in)
+{
+uint16_t	i,start,end;
+	get_limits(&start,&end,half_in);
+	for ( i=start;i<end;i++)
+		out_buffer[i] = in_buffer[i];
+}
+
+uint32_t VCFInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer, uint32_t channel)
+{
+	setOutStage((uint32_t )&static_do_vcf,in_buffer, out_buffer, get_bufferhalf(channel), 0, 0, 0, channel, in_stage,"VCF");
+	stage++;
+	return 0;
+}
+
