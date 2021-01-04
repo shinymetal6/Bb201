@@ -10,12 +10,12 @@
 #include <string.h>
 
 uint32_t	stage=0;
-__attribute__ ((aligned (16))) ProgramTypeDef			Program_ch0[NUMSTAGES];
-__attribute__ ((aligned (16))) ProgramTypeDef			Program_ch1[NUMSTAGES];
+AUDIO_BUFFERS	__attribute__ ((aligned (16))) ProgramTypeDef			Program_ch0[NUMSTAGES];
+AUDIO_BUFFERS	__attribute__ ((aligned (16))) ProgramTypeDef			Program_ch1[NUMSTAGES];
 __attribute__ ((aligned (16))) SystemParametersTypeDef	SystemParameters;
 __attribute__ ((aligned (16))) SystemFlagsTypeDef		SystemFlags;
 
-uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel, uint32_t stage_number,char *function)
+uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux1, uint32_t aux2, uint32_t aux3, uint32_t aux4, uint32_t channel, uint32_t stage_number,char *function)
 {
 	if ( stage_number >= NUMSTAGES )
 		return 1;
@@ -28,8 +28,11 @@ uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffe
 		Program_ch0[stage_number].out_buffer =  out_buffer;
 		Program_ch0[stage_number].control_buffer1 =  control_buffer1;
 		Program_ch0[stage_number].control_buffer2 =  control_buffer2;
-		Program_ch0[stage_number].aux =  aux;
-		Program_ch0[stage_number].aux =  channel;
+		Program_ch0[stage_number].aux1 =  aux1;
+		Program_ch0[stage_number].aux2 =  aux2;
+		Program_ch0[stage_number].aux3 =  aux3;
+		Program_ch0[stage_number].aux4 =  aux4;
+		Program_ch0[stage_number].channel =  channel;
 		Program_ch0[stage_number].on_stage =  stage_number;
 		sprintf((char *)Program_ch0[stage_number].function,function,strlen(function));
 	}
@@ -42,7 +45,10 @@ uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffe
 		Program_ch1[stage_number].out_buffer =  out_buffer;
 		Program_ch1[stage_number].control_buffer1 =  control_buffer1;
 		Program_ch1[stage_number].control_buffer2 =  control_buffer2;
-		Program_ch1[stage_number].aux =  aux;
+		Program_ch1[stage_number].aux1 =  aux1;
+		Program_ch1[stage_number].aux2 =  aux2;
+		Program_ch1[stage_number].aux3 =  aux3;
+		Program_ch1[stage_number].aux4 =  aux4;
 		Program_ch1[stage_number].channel =  channel;
 		Program_ch1[stage_number].on_stage =  stage_number;
 		sprintf((char *)Program_ch1[stage_number].function,function,strlen(function));
@@ -60,7 +66,7 @@ uint32_t	i;
 	{
 		  if (( Program_ch0[i].FuncPtr != NULL) && ( Program_ch0[i].channel == OUTCHANNEL_0) && ( SystemFlags.audioin_buffer_ready_ch0 == 1 ) && (Program_ch0[i].valid =  PROGRAM_VALID ))
 		  {
-				(*Program_ch0[i].FuncPtr)(Program_ch0[i].in_buffer1,Program_ch0[i].in_buffer2,Program_ch0[i].out_buffer,Program_ch0[i].control_buffer1,Program_ch0[i].control_buffer2,Program_ch0[i].aux,Program_ch0[i].channel);
+				(*Program_ch0[i].FuncPtr)(Program_ch0[i].in_buffer1,Program_ch0[i].in_buffer2,Program_ch0[i].out_buffer,Program_ch0[i].control_buffer1,Program_ch0[i].control_buffer2,Program_ch0[i].aux1,Program_ch0[i].aux2,Program_ch0[i].aux3,Program_ch0[i].aux4,Program_ch0[i].channel);
 		  }
 		  else
 			  break;
@@ -69,7 +75,7 @@ uint32_t	i;
 	{
 		  if (( Program_ch1[i].FuncPtr != NULL) && ( Program_ch1[i].channel == OUTCHANNEL_1) && ( SystemFlags.audioin_buffer_ready_ch1 == 1 )&& (Program_ch1[i].valid =  PROGRAM_VALID ))
 		  {
-				(*Program_ch1[i].FuncPtr)(Program_ch1[i].in_buffer1,Program_ch1[i].in_buffer2,Program_ch1[i].out_buffer,Program_ch1[i].control_buffer1,Program_ch1[i].control_buffer2,Program_ch1[i].aux,Program_ch1[i].channel);
+				(*Program_ch1[i].FuncPtr)(Program_ch1[i].in_buffer1,Program_ch1[i].in_buffer2,Program_ch1[i].out_buffer,Program_ch1[i].control_buffer1,Program_ch1[i].control_buffer2,Program_ch1[i].aux1,Program_ch1[i].aux2,Program_ch1[i].aux3,Program_ch1[i].aux4,Program_ch1[i].channel);
 		  }
 		  else
 			  break;

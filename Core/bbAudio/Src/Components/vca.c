@@ -17,7 +17,7 @@ uint16_t	i,start,end;
 
 uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,uint32_t control, uint32_t channel)
 {
-	setOutStage((uint32_t )&static_do_vca,in_buffer, out_buffer,control, get_bufferhalf(channel), 0, 0, channel, in_stage,"VCA");
+	setOutStage((uint32_t )&static_do_vca,in_buffer, out_buffer,control, get_bufferhalf(channel), 0, 0, 0, 0,0,channel, in_stage,"VCA");
 	stage++;
 	return 0;
 }

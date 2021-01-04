@@ -9,7 +9,6 @@
 #define BBAUDIO_INC_BBAUDIO_H_
 
 #include "arm_math.h"
-#include "audio_buffers.h"
 
 #define	ARM_MATH_CM7
 #define	TIMERS_FREQ	240000000
@@ -53,8 +52,8 @@ extern	void AudioInit(void);
 #define		SINE					0
 #define		TRIANGLE				1
 #define		SQUARE					2
-#define DMA_BUFFER __attribute__((section(".audio_buffers")))
-#define OSC_BUFFER __attribute__((section(".osc_buffers")))
+#define NO_CACHE_BUFFERS	__attribute__((section(".no_cache_buffers")))
+#define AUDIO_BUFFERS 		__attribute__((section(".audio_buffers")))
 
 /* Controls */
 #define		CONTROLBUF_LEN					6
@@ -79,13 +78,16 @@ extern	void ControlInit(void);
 typedef struct _ProgramTypeDef
 {
 	uint32_t valid;
-	uint32_t (* FuncPtr)(uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel);
+	uint32_t (* FuncPtr)(uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux1, uint32_t aux2, uint32_t aux3, uint32_t aux4, uint32_t channel);
 	uint32_t in_buffer1;
 	uint32_t in_buffer2;
 	uint32_t out_buffer;
 	uint32_t control_buffer1;
 	uint32_t control_buffer2;
-	uint32_t aux;
+	uint32_t aux1;
+	uint32_t aux2;
+	uint32_t aux3;
+	uint32_t aux4;
 	uint32_t channel;
 	uint32_t on_stage;
 	char 	 function[32];
@@ -115,7 +117,7 @@ extern	ProgramTypeDef	Program_ch0[NUMSTAGES];
 extern	ProgramTypeDef	Program_ch1[NUMSTAGES];
 extern	SystemParametersTypeDef	SystemParameters;
 extern	SystemFlagsTypeDef		SystemFlags;
-extern uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux, uint32_t channel, uint32_t stage_number,char *function);
+extern uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux1, uint32_t aux2, uint32_t aux3, uint32_t aux4, uint32_t channel, uint32_t stage_number,char *function);
 extern	void DoFunnelOut(void);
 extern	uint32_t ClearFunnelEntries(void);
 extern	uint32_t ReportFunnelEntries(uint32_t channel);
@@ -168,12 +170,12 @@ extern	uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffe
 extern	uint32_t RINGInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel);
 /* vcf.c */
 uint32_t VCFInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer, uint32_t channel);
-#define	HP	0
-#define	LP	1
-#define	BP	2
+#define	HP	1
+#define	LP	2
+#define	BP	3
 
 /* oscillators.c */
-#define		NUMOSCILLATORS				16
+#define		NUMOSCILLATORS				128
 #define		OSCILLATOR_DISABLED			0
 #define		OSCILLATOR_MIDI				1
 #define		OSCILLATOR_FREE_RUNNING		2

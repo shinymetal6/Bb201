@@ -33,7 +33,6 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include	"bbAudio.h"
-#include	"audio_buffers.h"
 
 /* USER CODE END Includes */
 

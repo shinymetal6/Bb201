@@ -53,12 +53,12 @@ SECTIONS
 {
   .audio_buffers(NOLOAD) : {
     . = ALIGN(4);
-    *(.audio_buffers*)
+    *(.no_cache_buffers*)
   } > RAM_D3
   
     .osc_buffers(NOLOAD) : {
     . = ALIGN(4);
-    *(.osc_buffers*)
+    *(.audio_buffers*)
   } > RAM_D2
   /* The startup code into "FLASH" Rom type memory */
   .isr_vector :

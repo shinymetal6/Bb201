@@ -147,10 +147,14 @@ int main(void)
   /* USER CODE BEGIN 2 */
   bbSystemInit();
 
-
-  //q15FirInit    (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[0], ffirCoeffs32,OUTCHANNEL_0);
-  VCFInit     (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[0],OUTCHANNEL_0);
-  ECHOInit    (stage, (uint32_t )&audio_pipe[0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  /* fir test */
+  //q15FirInit    (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[4], ffirCoeffs32,OUTCHANNEL_0);
+  /* VCF Test */
+  //VCFInit     (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[4],OUTCHANNEL_0);
+  //ECHOInit    (stage, (uint32_t )&audio_pipe[4],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  /* Osc test */
+  ECHOInit    (stage, (uint32_t )&osc_output_buffer,(uint32_t )&audio_pipe[4],OUTCHANNEL_0);
+  ECHOInit    (stage, (uint32_t )&audio_pipe[4],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
 
   /* USER CODE END 2 */
 

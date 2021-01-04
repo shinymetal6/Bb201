@@ -32,7 +32,7 @@ uint32_t q15FirInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,fl
 	arm_float_to_q15(fFIRCoef,(q15_t *)FIRCoef[in_stage],NUM_TAPS);
 	if ( arm_fir_init_q15(&S[in_stage], NUM_TAPS, FIRCoef[in_stage], firState[in_stage], BLOCK_SIZE) != ARM_MATH_SUCCESS )
 		return 1;
-	setOutStage((uint32_t )&static_do_fir,in_buffer, out_buffer, get_bufferhalf(channel), in_stage, 0, 0, 0, in_stage,"Fir");
+	setOutStage((uint32_t )&static_do_fir,in_buffer, out_buffer, get_bufferhalf(channel), in_stage, 0, 0, 0, 0, 0, 0, in_stage,"Fir");
 	stage++;
 	return 0;
 }

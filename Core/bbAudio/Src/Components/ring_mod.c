@@ -18,7 +18,7 @@ uint16_t	i,start,end;
 
 uint32_t RINGInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel)
 {
-	setOutStage((uint32_t )&static_do_ring,in_buffer1,in_buffer2, out_buffer,control, get_bufferhalf(channel), 0, channel, in_stage,"Ring");
+	setOutStage((uint32_t )&static_do_ring,in_buffer1,in_buffer2, out_buffer,control, get_bufferhalf(channel), 0,0,0,0, channel, in_stage,"Ring");
 	stage++;
 	return 0;
 }

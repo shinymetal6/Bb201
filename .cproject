@@ -127,9 +127,15 @@
 							<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1403598413" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 						</tool>
 					</fileInfo>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1869101888.1543331293" name="vcf.c" rcbsApplicability="disable" resourcePath="Core/bbAudio/Src/Components/vcf.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.784991808.922483546">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.784991808.922483546" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.784991808">
+							<option id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.optimization.level.433763418" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.optimization.level.value.ofast" valueType="enumerated"/>
+							<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1612976873" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
-						<entry excluding="bbAudio/Src/Components/i_oscillators.c|bbAudio/Src/Components/lfo.c|bbAudio/Src/Components/vco.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
+						<entry excluding="bbAudio/Src/Components/storecode.c|bbAudio/Src/Components/i_oscillators.c|bbAudio/Src/Components/lfo.c|bbAudio/Src/Components/vco.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="ST" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 					</sourceEntries>
@@ -213,7 +219,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
-						<entry excluding="bbAudio/Src/Components/i_oscillators.c|bbAudio/Src/Components/lfo.c|bbAudio/Src/Components/vco.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
+						<entry excluding="bbAudio/Src/Components/storecode.c|bbAudio/Src/Components/i_oscillators.c|bbAudio/Src/Components/lfo.c|bbAudio/Src/Components/vco.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="ST" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 					</sourceEntries>

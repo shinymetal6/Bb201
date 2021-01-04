@@ -9,12 +9,12 @@
 #define	DUAL
 
 /* No cache on this areas */
-DMA_BUFFER __attribute__ ((aligned (4))) uint16_t	audio_buf_0_2_in[AUDIOBUF_LEN];
-DMA_BUFFER __attribute__ ((aligned (4))) uint16_t	audio_buf_1_3_in[AUDIOBUF_LEN];
-DMA_BUFFER __attribute__ ((aligned (4))) uint16_t	audio_buf_out[CHANNELS][AUDIOBUF_LEN];
+NO_CACHE_BUFFERS __attribute__ ((aligned (4))) uint16_t	audio_buf_0_2_in[AUDIOBUF_LEN];
+NO_CACHE_BUFFERS __attribute__ ((aligned (4))) uint16_t	audio_buf_1_3_in[AUDIOBUF_LEN];
+NO_CACHE_BUFFERS __attribute__ ((aligned (4))) uint16_t	audio_buf_out[CHANNELS][AUDIOBUF_LEN];
 
 /* This area can be cached */
-__attribute__ ((aligned (4))) uint16_t	audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
+AUDIO_BUFFERS	__attribute__ ((aligned (4))) uint16_t	audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
 
 /* Helper audio functions */
 uint32_t get_bufferhalf(uint32_t channel)
