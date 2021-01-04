@@ -147,100 +147,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
   bbSystemInit();
 
-  /*
-  VCOInit(SINE,stage,(uint32_t )&audio_pipe0[0],0,OUTCHANNEL_0);
-  ECHOInit(stage,(uint32_t )&audio_pipe0[0],(uint32_t )&audio_pipe0[1],OUTCHANNEL_0);
-  VCAInit(stage,(uint32_t )&audio_pipe0[1],(uint32_t )&audio_buf_0_out,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
 
-  VCOInit(SINE,stage,(uint32_t )&audio_pipe1[0],0,OUTCHANNEL_1);
-  ECHOInit(stage,(uint32_t )&audio_pipe1[0],(uint32_t )&audio_pipe1[1],OUTCHANNEL_1);
-  VCAInit(stage,(uint32_t )&audio_pipe1[1],(uint32_t )&audio_buf_1_out,(uint32_t )&control_buf.ain0,OUTCHANNEL_1);
-  */
-  //q15FirInit(stage,(uint32_t )&audio_workbuf_0in[0],(uint32_t )&audio_buf_0_out[0],ffirCoeffs32,OUTCHANNEL_0);
-  //FloatFirInit(stage,(uint32_t )&audio_workbuf_0in[0],(uint32_t )&audio_buf_0_out[0],ffirCoeffs32,OUTCHANNEL_0);
-  //VCAInit(stage,(uint32_t )&audio_workbuf_0in[0],(uint32_t )&audio_buf_0_out,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
-  //ECHOInit(stage,(uint32_t )&audio_workbuf_0in[0],(uint32_t )&audio_buf_0_out[0],OUTCHANNEL_0);
-
-  //VCOInit     (stage, SINE, AUDIOPIPE_0_CH0,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
-  //MixerInit   (stage, AUDIOPIPE_0_CH0,AUDIO_BUFIN_CH0, AUDIOPIPE_1_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-/*
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_0_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_1_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_2_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_3_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_4_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_5_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_6_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,AUDIOPIPE_7_CH0, ffirCoeffs32,OUTCHANNEL_0);
-
-  MixerInit   (stage, AUDIOPIPE_0_CH0,AUDIOPIPE_1_CH0, AUDIOPIPE_8_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-  MixerInit   (stage, AUDIOPIPE_2_CH0,AUDIOPIPE_3_CH0, AUDIOPIPE_9_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-  MixerInit   (stage, AUDIOPIPE_4_CH0,AUDIOPIPE_5_CH0, AUDIOPIPE_10_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-  MixerInit   (stage, AUDIOPIPE_6_CH0,AUDIOPIPE_7_CH0, AUDIOPIPE_11_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-
-  MixerInit   (stage, AUDIOPIPE_8_CH0,AUDIOPIPE_9_CH0, 		AUDIOPIPE_12_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-  MixerInit   (stage, AUDIOPIPE_10_CH0,AUDIOPIPE_11_CH0, 	AUDIOPIPE_13_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-
-  MixerInit   (stage, AUDIOPIPE_12_CH0,AUDIOPIPE_13_CH0, 	AUDIOPIPE_14_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-
-  VCAInit     (stage, AUDIOPIPE_14_CH0,AUDIOPIPE_15_CH0, (uint32_t )&control_buf.ain1,OUTCHANNEL_0);
-  ECHOInit    (stage, AUDIOPIPE_15_CH0,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-  */
-  /*
-  VCOInit     (stage, SINE, AUDIOPIPE_0_CH0,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
-  VCAInit	  (stage, AUDIOPIPE_0_CH0,AUDIOPIPE_1_CH0,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
-  ECHOInit    (stage, AUDIOPIPE_1_CH0,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-*/
-
-  /*
-  q15FirInit  (stage, AUDIO_BUFIN_CH0,PIPE0, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit  (stage, PIPE0,AUDIO_BUFOUT_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  */
-  /*
-  ECHOInit    (stage, AUDIO_BUFIN_CH0,PIPE0,OUTCHANNEL_0);
-  ECHOInit    (stage, PIPE0,PIPE1,OUTCHANNEL_0);
-  ECHOInit    (stage, PIPE1,PIPE2,OUTCHANNEL_0);
-  ECHOInit    (stage, PIPE2,PIPE3,OUTCHANNEL_0);
-  ECHOInit    (stage, PIPE3,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-  */
-  /*
-  VCOInit       (stage, SINE, PIPE0,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
-  //q15FirInit    (stage, AUDIO_BUFIN_CH0,PIPE0, ffirCoeffs32,OUTCHANNEL_0);
-  RINGInit		(stage, AUDIO_BUFIN_CH0,PIPE0, PIPE1,(uint32_t )&control_buf.ain1,OUTCHANNEL_0);
-  //q15FirInit    (stage, AUDIO_BUFIN_CH0,PIPE1, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit    (stage, AUDIO_BUFIN_CH0,PIPE2, ffirCoeffs32,OUTCHANNEL_0);
-  q15FirInit    (stage, AUDIO_BUFIN_CH0,PIPE3, ffirCoeffs32,OUTCHANNEL_0);
-  MixerInit     (stage, PIPE0,PIPE1, 	PIPE4,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-  MixerInit     (stage, PIPE2,PIPE3, 	PIPE5,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-  MixerInit     (stage, PIPE4,PIPE5, 	AUDIO_BUFOUT_CH0,(uint32_t )&control_buf.ain1, OUTCHANNEL_0);
-  */
-  //q15FirInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0, ffirCoeffs32,OUTCHANNEL_0);
-  //ECHOInit    (stage, AUDIO_BUFIN_CH0,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-//#define	TEST_Q15
-
-
-  //EnableOscillator(OUTCHANNEL_0,0);
-  /*
-  for(uint16_t i=0;i<1;i++)
-  {
-	  ChangeOscillatorFrequency(OUTCHANNEL_0,i,1890);
-  	  EnableOscillator(OUTCHANNEL_0,i);
-	  ChangeOscillatorFrequency(OUTCHANNEL_1,i,1890);
-  	  EnableOscillator(OUTCHANNEL_1,i);
-  }
-  */
-  //ECHOInit    (stage, OSCILLATOR_0_MIX,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-  /*
-  ECHOInit    (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[0],OUTCHANNEL_0);
-  ECHOInit    (stage, (uint32_t )&audio_pipe[0],(uint32_t )&audio_pipe[1],OUTCHANNEL_0);
-  ECHOInit    (stage, (uint32_t )&audio_pipe[1],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-  */
-  //void SetOscillatorParams(uint16_t osc_number, uint16_t sampling_frequency, uint16_t freq, uint16_t volume, uint16_t phase, uint16_t osc_group, uint16_t enabled)
-
-  //SetOscillatorParams(0, SystemParameters.sampling_frequency[OUTCHANNEL_0], 440, SINE, MAX_VOLUME, 0,0,OSCILLATOR_ENABLED);
-
-  //ECHOInit    (stage, (uint32_t )&osc_buf[OUTCHANNEL_0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
-  ECHOInit    (stage, (uint32_t )&osc_output_buffer,AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  //q15FirInit    (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[0], ffirCoeffs32,OUTCHANNEL_0);
+  VCFInit     (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[0],OUTCHANNEL_0);
+  ECHOInit    (stage, (uint32_t )&audio_pipe[0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
 
   /* USER CODE END 2 */
 

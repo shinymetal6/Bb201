@@ -166,13 +166,19 @@ extern	uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffe
 
 /* ring_mod.c */
 extern	uint32_t RINGInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel);
+/* vcf.c */
+uint32_t VCFInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer, uint32_t channel);
+#define	HP	0
+#define	LP	1
+#define	BP	2
+
 /* oscillators.c */
-#define		NUMOSCILLATORS				256
+#define		NUMOSCILLATORS				16
 #define		OSCILLATOR_DISABLED			0
 #define		OSCILLATOR_MIDI				1
 #define		OSCILLATOR_FREE_RUNNING		2
 #define		OSCILLATOR_LOCAL_CONTROL	4
-#define		MAX_VOLUME				DAC_RESOLUTION
+#define		MAX_VOLUME					DAC_RESOLUTION
 
 typedef struct _OscillatorsTypeDef
 {

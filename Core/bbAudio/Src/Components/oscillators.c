@@ -37,7 +37,10 @@ uint8_t		angle;
 		if ( Oscillator[osc_number].current_volume != 0 )
 		{
 			osc_buf[osc_number][i] = (wavetab[osc_number][angle] * Oscillator[osc_number].current_volume ) >> (DAC_BIT-1);
-			osc_output_buffer[i] = ((osc_output_buffer[i] >> 1 ) + (osc_buf[osc_number][i] >> 1));
+			if ( osc_activechannels > 1 )
+				osc_output_buffer[i] = ((osc_output_buffer[i] >> 1 ) + (osc_buf[osc_number][i] >> 1));
+			else
+				osc_output_buffer[i] = osc_buf[osc_number][i];
 		}
 		Oscillator[osc_number].current_phase += Oscillator[osc_number].delta_phase;
 	}
