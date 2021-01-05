@@ -1,20 +1,39 @@
 /*
- * audio_init.c
+ * audio_functions.c
  *
  *  Created on: Nov 21, 2020
  *      Author: fil
  */
 
 #include "main.h"
-#define	DUAL
 
 /* No cache on this areas */
-NO_CACHE_BUFFERS __attribute__ ((aligned (4))) uint16_t	audio_buf_0_2_in[AUDIOBUF_LEN];
-NO_CACHE_BUFFERS __attribute__ ((aligned (4))) uint16_t	audio_buf_1_3_in[AUDIOBUF_LEN];
-NO_CACHE_BUFFERS __attribute__ ((aligned (4))) uint16_t	audio_buf_out[CHANNELS][AUDIOBUF_LEN];
+NO_CACHE_BUFFERS	__attribute__ ((aligned (4))) uint16_t	audio_buf_0_2_in[AUDIOBUF_LEN];
+NO_CACHE_BUFFERS	__attribute__ ((aligned (4))) uint16_t	audio_buf_1_3_in[AUDIOBUF_LEN];
+NO_CACHE_BUFFERS	__attribute__ ((aligned (4))) uint16_t	audio_buf_out[CHANNELS][NUMBER_OF_AUDIO_SAMPLES];
+
+AUDIO_BUFFERS		__attribute__ ((aligned (16))) uint16_t	RNG_Buffer[RNG_ELEMENTS];
 
 /* This area can be cached */
 AUDIO_BUFFERS	__attribute__ ((aligned (4))) uint16_t	audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
+
+uint32_t	generated=0 , current_rand;
+
+void RNG_callback(void)
+{
+	current_rand = HAL_RNG_ReadLastRandomNumber(&hrng);
+}
+
+void GenerateRNG(void)
+{
+	RNG_Buffer[generated] 	=  current_rand        & (DAC_RESOLUTION -1);
+	RNG_Buffer[generated+1] = (current_rand >> 6)  & (DAC_RESOLUTION -1);
+	RNG_Buffer[generated+2] = (current_rand >> 8) & (DAC_RESOLUTION -1);
+	RNG_Buffer[generated+3] = (current_rand >> 11) & (DAC_RESOLUTION -1);
+	generated += 4;
+	generated &= (RNG_ELEMENTS-1);
+	HAL_RNG_GenerateRandomNumber_IT(&hrng);
+}
 
 /* Helper audio functions */
 uint32_t get_bufferhalf(uint32_t channel)
@@ -51,6 +70,7 @@ void GetBufferIn(void)
 uint16_t	i,start,end;
 	if ( SystemFlags.audioin_buffer_ready_ch0 == 1 )
 	{
+		GenerateRNG();
 		get_limits(&start,&end,&SystemFlags.half_in_ch0);
 		for ( i=start;i<end;i++)
 		{
@@ -60,6 +80,7 @@ uint16_t	i,start,end;
 	}
 	if ( SystemFlags.audioin_buffer_ready_ch1 == 1 )
 	{
+		GenerateRNG();
 		get_limits(&start,&end,&SystemFlags.half_in_ch1);
 		for ( i=start;i<end;i++)
 		{
@@ -78,7 +99,6 @@ void AudioCh0Init(void)
 	HAL_OPAMP_Start(&hopamp1);
 }
 
-#ifdef DUAL
 void AudioCh1Init(void)
 {
 	HAL_ADCEx_Calibration_Start(AUDIO_1_3_ADC, ADC_CALIB_OFFSET, ADC_SINGLE_ENDED);
@@ -87,18 +107,17 @@ void AudioCh1Init(void)
 	HAL_DAC_Start_DMA(AUDIO_0_DAC, DAC_CHANNEL_2, (uint32_t* )AUDIO_BUFOUT_CH1, NUMBER_OF_AUDIO_SAMPLES, DAC_ALIGN_12B_R);
 	HAL_OPAMP_Start(&hopamp2);
 }
-#endif
 void AudioInit(void)
 {
+uint16_t	i;
 	SystemFlags.half_in_ch0 = 0;
 	SystemFlags.audioin_buffer_ready_ch0 = 0;
 	SystemFlags.half_in_ch1 = 0;
 	SystemFlags.audioin_buffer_ready_ch1 = 0;
-
+	for(i=0;i<NUMBER_OF_AUDIO_SAMPLES  ;i++)
+		audio_buf_out[OUTCHANNEL_0][NUMBER_OF_AUDIO_SAMPLES] = audio_buf_out[OUTCHANNEL_1][NUMBER_OF_AUDIO_SAMPLES] = 0;
 	AudioCh0Init();
-	#ifdef DUAL
 	AudioCh1Init();
-	#endif
 	audio_timer_start();
 }
 

@@ -31,6 +31,7 @@
 #define		NUMBER_OF_AUDIO_SAMPLES			512
 #define		HALF_NUMBER_OF_AUDIO_SAMPLES	NUMBER_OF_AUDIO_SAMPLES/2
 #define		AUDIOBUF_LEN					NUMBER_OF_AUDIO_SAMPLES*2
+#define		RNG_ELEMENTS					NUMBER_OF_AUDIO_SAMPLES
 
 extern	ADC_HandleTypeDef hadc1;
 extern	ADC_HandleTypeDef hadc3;
@@ -43,6 +44,7 @@ extern	OPAMP_HandleTypeDef hopamp1;
 extern	OPAMP_HandleTypeDef hopamp2;
 extern	SPI_HandleTypeDef hspi4;
 extern	TIM_HandleTypeDef htim15;
+extern	RNG_HandleTypeDef hrng;
 
 extern	void AudioInit(void);
 #define		AUDIO_0_2_ADC			&hadc3
@@ -127,15 +129,20 @@ extern	void debug_0(void);
 extern	void debug_1(void);
 extern	void ChangeSampleFrequency(uint32_t sampling_frequency , uint32_t channel);
 extern	void bbSystem_SystemSetDefaults(void);
+/* noise_generator.c */
+extern	uint32_t NoiseGeneratorInit(uint32_t in_stage, uint32_t out_buffer, uint32_t channel);
 
-/* audio_init.c */
+/* audio_functions.c */
 extern	void GetBufferIn(void);
 extern	void do_workbuf_out(void);
+extern	uint16_t	RNG_Buffer[RNG_ELEMENTS];
+extern	void RNG_callback(void);
+
 /* audio_buffers.c */
 /* No cache on this areas */
 extern	__attribute__ ((aligned (4))) uint16_t	audio_buf_0_2_in[AUDIOBUF_LEN];
 extern	__attribute__ ((aligned (4))) uint16_t	audio_buf_1_3_in[AUDIOBUF_LEN];
-extern	__attribute__ ((aligned (4))) uint16_t	audio_buf_out[2][AUDIOBUF_LEN];
+extern	__attribute__ ((aligned (4))) uint16_t	audio_buf_out[CHANNELS][NUMBER_OF_AUDIO_SAMPLES];
 
 #define	CH0_IN				0
 #define	CH1_IN				1
