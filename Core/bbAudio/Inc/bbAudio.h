@@ -10,6 +10,7 @@
 
 #include "arm_math.h"
 
+
 #define	ARM_MATH_CM7
 #define	TIMERS_FREQ	240000000
 #define	DAC_BIT				12
@@ -28,10 +29,13 @@
 #define	FULL_BUFFER_FLAG	0
 #define	BIT_RESOLUTION		12
 
-#define		NUMBER_OF_AUDIO_SAMPLES			512
-#define		HALF_NUMBER_OF_AUDIO_SAMPLES	NUMBER_OF_AUDIO_SAMPLES/2
-#define		AUDIOBUF_LEN					NUMBER_OF_AUDIO_SAMPLES*2
-#define		RNG_ELEMENTS					NUMBER_OF_AUDIO_SAMPLES
+#define	NUMSTAGES			16
+#define	NUMOSCILLATORS		16
+
+#define	NUMBER_OF_AUDIO_SAMPLES			512
+#define	HALF_NUMBER_OF_AUDIO_SAMPLES	NUMBER_OF_AUDIO_SAMPLES/2
+#define	AUDIOBUF_LEN					NUMBER_OF_AUDIO_SAMPLES*2
+#define	RNG_ELEMENTS					NUMBER_OF_AUDIO_SAMPLES
 
 extern	ADC_HandleTypeDef hadc1;
 extern	ADC_HandleTypeDef hadc3;
@@ -69,31 +73,52 @@ typedef struct _AF_ControlTypeDef
 	uint16_t ain4;
 	uint16_t ain5;
 }AF_ControlTypeDef;
-extern	__attribute__ ((aligned (4))) AF_ControlTypeDef		control_buf;
+extern	AF_ControlTypeDef		control_buf;
 
 uint16_t	control_ready;
 #define		CONTROL_ADC				&hadc2
 extern	void ControlInit(void);
 
 /* system.c */
-#define	NUMSTAGES		96
-typedef struct _ProgramTypeDef
+
+/* index to volume controls */
+#define	VOLUME_SOURCE_LOCAL		0
+#define	VOLUME_SOURCE_MIDI		1
+#define	VOLUME_SOURCE_EXTERNAL	2
+#define	VOLUME_SOURCE_FROMCOMP	3
+/* Flags meaning */
+#define	COMP_HAS_LOCALVOLUME			1 << 0
+#define	COMP_HAS_MIDIVOLUME				1 << 1
+#define	COMP_HAS_EXTERNALVOLUME			1 << 2
+#define	COMP_HAS_FROMCOMPVOLUME			1 << 3
+
+typedef struct _S_Component
 {
-	uint32_t valid;
-	uint32_t (* FuncPtr)(uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux1, uint32_t aux2, uint32_t aux3, uint32_t aux4, uint32_t channel);
+	uint32_t (* FuncPtr)(uint16_t channel,uint16_t index);
+	uint32_t in_buffer0;
 	uint32_t in_buffer1;
 	uint32_t in_buffer2;
-	uint32_t out_buffer;
-	uint32_t control_buffer1;
-	uint32_t control_buffer2;
-	uint32_t aux1;
-	uint32_t aux2;
-	uint32_t aux3;
-	uint32_t aux4;
-	uint32_t channel;
-	uint32_t on_stage;
-	char 	 function[32];
-}ProgramTypeDef;
+	uint32_t in_buffer3;
+	uint32_t out_buffer0;
+	uint32_t out_buffer1;
+	uint8_t  volumes_ch0_source;
+	uint8_t  volumes_ch1_source;
+	uint8_t  volumes_ch2_source;
+	uint8_t  volumes_ch3_source;
+	uint32_t volume_ch0_source_ptr;
+	uint32_t volume_ch1_source_ptr;
+	uint32_t volume_ch2_source_ptr;
+	uint32_t volume_ch3_source_ptr;
+	uint16_t aux_ch0[4];
+	uint16_t aux_ch1[4];
+	uint16_t aux_ch2[4];
+	uint16_t aux_ch3[4];
+	uint32_t half_ptr;
+	uint16_t flags;
+	uint16_t channel;
+	uint16_t stage_number;
+	char 	 functionName[32];
+}S_Component;
 
 #define	PROGRAM_VALID	0xc1a0c1a0
 typedef struct _SystemParametersTypeDef
@@ -115,15 +140,21 @@ typedef struct _SystemFlagsTypeDef
 }SystemFlagsTypeDef;
 
 extern	uint32_t		stage;
+/*
 extern	ProgramTypeDef	Program_ch0[NUMSTAGES];
 extern	ProgramTypeDef	Program_ch1[NUMSTAGES];
+*/
+extern	S_Component				Component[NUMSTAGES];
 extern	SystemParametersTypeDef	SystemParameters;
 extern	SystemFlagsTypeDef		SystemFlags;
-extern uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux1, uint32_t aux2, uint32_t aux3, uint32_t aux4, uint32_t channel, uint32_t stage_number,char *function);
+//extern uint32_t setOutStage(uint32_t function_ptr,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer, uint32_t control_buffer1, uint32_t control_buffer2, uint32_t aux1, uint32_t aux2, uint32_t aux3, uint32_t aux4, uint32_t channel, uint32_t stage_number,char *function);
+extern	uint32_t setOutStage(S_Component *component,uint16_t channel,uint32_t stage_number);
 extern	void DoFunnelOut(void);
+/*
 extern	uint32_t ClearFunnelEntries(void);
 extern	uint32_t ReportFunnelEntries(uint32_t channel);
 extern	char *ReportFunnelName(uint32_t channel,uint32_t funnel_entry);
+*/
 extern	void bbSystemInit(void);
 extern	void debug_0(void);
 extern	void debug_1(void);
@@ -158,20 +189,19 @@ extern	__attribute__ ((aligned (4))) uint16_t	audio_buf_out[CHANNELS][NUMBER_OF_
 
 /* This area can be cached */
 extern	__attribute__ ((aligned (4))) uint16_t	audio_pipe[NUMSTAGES][NUMBER_OF_AUDIO_SAMPLES];
-/* mixer.c */
-extern	uint32_t MixerInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control0,uint32_t control1, uint32_t channel);
+/* echo.c */
+extern	uint32_t ECHOInit(uint32_t in_buffer, uint32_t out_buffer, uint32_t channel, uint32_t stage);
+/* mixer_2ch.c */
+//extern	uint32_t Mixer2CHInit(uint32_t in_buffer, uint32_t out_buffer, uint32_t channel, uint32_t stage);
+
 /* fir.c */
 extern	uint32_t q15FirInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,float fFIRCoef[64], uint32_t channel);
-/* float_fir.c */
-extern	uint32_t FloatFirInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,float fFIRCoef[128], uint32_t channel);
 /* vco.c */
 extern	uint32_t VCOInit(uint32_t in_stage,uint16_t waveform_type, uint32_t out_buffer, uint32_t freq_control, uint32_t channel);
-/* echo.c */
-extern	uint32_t ECHOInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer, uint32_t channel);
 /* vca.c */
 #define	INTERNAL_VCACONTROL	0
 #define	EXTERNAL_VCACONTROL	1
-extern	uint32_t VCAInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer,uint32_t control, uint32_t channel);
+extern	uint32_t VCAInit(uint32_t in_buffer, uint32_t out_buffer,uint32_t volume_ch0_source_ptr, uint32_t channel,uint32_t in_stage);
 
 /* ring_mod.c */
 extern	uint32_t RINGInit(uint32_t in_stage,uint32_t in_buffer1,uint32_t in_buffer2, uint32_t out_buffer,uint32_t control, uint32_t channel);
@@ -182,93 +212,6 @@ uint32_t VCFInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer, uint
 #define	BP	3
 
 /* oscillators.c */
-#define		NUMOSCILLATORS				128
-#define		OSCILLATOR_DISABLED			0
-#define		OSCILLATOR_MIDI				1
-#define		OSCILLATOR_FREE_RUNNING		2
-#define		OSCILLATOR_LOCAL_CONTROL	4
-#define		MAX_VOLUME					DAC_RESOLUTION
-
-typedef struct _OscillatorsTypeDef
-{
-	uint16_t 				current_phase;
-	uint16_t 				delta_phase;
-	uint16_t 				waveform;
-	uint16_t 				channel;
-	uint16_t 				midi_note;
-	uint16_t 				volume;
-	uint16_t 				current_volume;
-	uint16_t 				osc_group;
-	uint16_t 				flags;
-	uint32_t 				local_controller_ptr;
-	uint32_t 				buffer_flag_ptr;
-	float 					sampling_frequency;
-	float 					freq;
-	float					new_freq;
-	float 					pitch_bend;
-	uint16_t				phase;
-	uint16_t 				detune;
-}OscillatorsTypeDef;
-
-extern	OscillatorsTypeDef	Oscillator[NUMOSCILLATORS];
-extern	uint32_t InitOscillators(void);
-extern	uint16_t osc_buf[NUMOSCILLATORS][NUMBER_OF_AUDIO_SAMPLES];
-extern	uint16_t osc_output_buffer[NUMBER_OF_AUDIO_SAMPLES];
-extern	void SetOscillatorParams(uint16_t osc_number, uint32_t sampling_frequency, uint16_t freq, uint8_t waveform, uint16_t volume, uint16_t phase, uint16_t osc_group, uint16_t enabled);
-extern	void SetOscillatorFrequency(uint16_t osc_number, uint32_t sampling_frequency, uint16_t freq, uint16_t volume, uint16_t midi_note);
-extern	void SetOscillatorWaveform(uint16_t osc_number, uint8_t waveform, uint16_t phase);
-extern	void EnableOscillator(uint32_t osc_number);
-extern	void DisableOscillator(uint16_t osc_number);
-extern	void SetOscillatorGroup(uint16_t osc_number,uint32_t group);
-extern	void UnSetOscillatorGroup(uint16_t osc_number );
-extern	void SetOscillatorVolume(uint16_t osc_number, uint16_t volume);
-extern	void SetOscillatorPhase(uint16_t osc_number, uint8_t phase);
-extern	void SetOscillatorDeTune(uint16_t osc_number, uint16_t detune);
-extern	void SetOscillatorFlag(uint16_t osc_number,uint32_t flags);
-
-extern	uint32_t FindOscByMidi(uint32_t midi_note);
-extern	void DoOscillators(void);
-extern	uint32_t InitOscillators(void);
-
-extern	float noteToFreq(uint32_t note);
-
-#define	OSCILLATOR_0_MIX				(uint32_t )&osc_out[OUTCHANNEL_0]
-#define	OSCILLATOR_1_MIX				(uint32_t )&osc_out[OUTCHANNEL_1]
-
-#define	OSCILLATOR_0_0_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][0]
-#define	OSCILLATOR_0_1_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][1]
-#define	OSCILLATOR_0_2_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][2]
-#define	OSCILLATOR_0_3_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][3]
-#define	OSCILLATOR_0_4_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][4]
-#define	OSCILLATOR_0_5_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][5]
-#define	OSCILLATOR_0_6_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][6]
-#define	OSCILLATOR_0_7_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][7]
-#define	OSCILLATOR_0_8_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][8]
-#define	OSCILLATOR_0_9_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][9]
-#define	OSCILLATOR_0_10_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][10]
-#define	OSCILLATOR_0_11_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][11]
-#define	OSCILLATOR_0_12_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][12]
-#define	OSCILLATOR_0_13_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][13]
-#define	OSCILLATOR_0_14_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][14]
-#define	OSCILLATOR_0_15_BUF				(uint32_t )&osc_buf[OUTCHANNEL_0][15]
-
-#define	OSCILLATOR_1_0_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][0]
-#define	OSCILLATOR_1_1_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][1]
-#define	OSCILLATOR_1_2_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][2]
-#define	OSCILLATOR_1_3_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][3]
-#define	OSCILLATOR_1_4_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][4]
-#define	OSCILLATOR_1_5_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][5]
-#define	OSCILLATOR_1_6_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][6]
-#define	OSCILLATOR_1_7_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][7]
-#define	OSCILLATOR_1_8_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][8]
-#define	OSCILLATOR_1_9_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][9]
-#define	OSCILLATOR_1_10_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][10]
-#define	OSCILLATOR_1_11_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][11]
-#define	OSCILLATOR_1_12_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][12]
-#define	OSCILLATOR_1_13_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][13]
-#define	OSCILLATOR_1_14_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][14]
-#define	OSCILLATOR_1_15_BUF				(uint32_t )&osc_buf[OUTCHANNEL_1][15]
-
 
 /* usb_commands.c */
 #define	USB_TXBUF_SIZE	2048
@@ -300,5 +243,6 @@ extern	void clear_buffer_ready_flag(void);
 /* Includes, here for back refs */
 #include "port.h"
 #include "flash_manager.h"
+#include "oscillators.h"
 
 #endif /* BBAUDIO_INC_BBAUDIO_H_ */

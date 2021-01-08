@@ -72,13 +72,17 @@ void LoadSettingsFromFlash(void)
 
 void StoreProgramInFlash(void)
 {
+	/*
 	flash_EraseSector(PROGRAM_SECTOR);
 	flash_WriteBytes((uint8_t *)Program_ch0,flash_SectorToAddress(PROGRAM_SECTOR),sizeof(Program_ch0));
 	flash_WriteBytes((uint8_t *)Program_ch1,flash_SectorToAddress(PROGRAM_SECTOR)+sizeof(Program_ch0),sizeof(Program_ch1));
+	*/
 }
 void LoadProgramFromFlash(void)
 {
+	/*
 	flash_ReadBytes((uint8_t *)&Program_ch0,flash_SectorToAddress(PROGRAM_SECTOR),sizeof(Program_ch0));
 	flash_ReadBytes((uint8_t *)&Program_ch1,flash_SectorToAddress(PROGRAM_SECTOR)+sizeof(Program_ch0),sizeof(Program_ch1));
+	*/
 }
 

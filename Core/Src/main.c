@@ -91,6 +91,7 @@ static void MX_TIM4_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_RNG_Init(void);
 /* USER CODE BEGIN PFP */
+extern	uint16_t	oscd_output_buffer[NUMBER_OF_AUDIO_SAMPLES];
 
 /* USER CODE END PFP */
 
@@ -157,8 +158,16 @@ int main(void)
   //VCFInit     (stage, AUDIO_BUFIN_CH0,(uint32_t )&audio_pipe[4],OUTCHANNEL_0);
   //ECHOInit    (stage, (uint32_t )&audio_pipe[4],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
   /* Osc test */
+  /*
   ECHOInit    (stage, (uint32_t )&osc_output_buffer,(uint32_t )&audio_pipe[4],OUTCHANNEL_0);
   ECHOInit    (stage, (uint32_t )&audio_pipe[4],AUDIO_BUFOUT_CH0,OUTCHANNEL_0);
+  ECHOInit(AUDIO_BUFIN_CH0, AUDIO_BUFOUT_CH0, OUTCHANNEL_0, stage);
+  */
+  //VCAInit(AUDIO_BUFIN_CH0, AUDIO_BUFOUT_CH0, (uint32_t )&control_buf.ain1, OUTCHANNEL_0, stage);
+  //Mixer2CHInit(AUDIO_BUFIN_CH0, AUDIO_BUFIN_CH1, AUDIO_BUFOUT_CH0, (uint32_t )&control_buf.ain1, (uint32_t )&control_buf.ain2, OUTCHANNEL_0, stage);
+  //Mixer2CHInit(AUDIO_BUFIN_CH0, (uint32_t )&osc_output_buffer, AUDIO_BUFOUT_CH0, (uint32_t )&control_buf.ain1, (uint32_t )&control_buf.ain2, OUTCHANNEL_0, stage);
+  ECHOInit    ((uint32_t )&oscd_output_buffer,AUDIO_BUFOUT_CH0,OUTCHANNEL_0,stage);
+  SetOscdVolume( 0,  (DAC_RESOLUTION-1));
 
   /* USER CODE END 2 */
 
@@ -175,6 +184,7 @@ int main(void)
 		if ( control_ready == 1 )
 		{
 			SystemFlags.control_ready = 0;
+			DoControls();
 		}
 		UsbMidiCheck();
     /* USER CODE END WHILE */

@@ -21,7 +21,7 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 		SystemFlags.audioin_buffer_ready_ch1 = 1;
 	}
 }
-
+uint16_t	toggle=0;
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	if ( hadc == AUDIO_0_2_ADC)
@@ -35,5 +35,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 		SystemFlags.audioin_buffer_ready_ch1 = 1;
 	}
 	if ( hadc == CONTROL_ADC)
+	{
 		SystemFlags.control_ready = 1;
+	}
 }

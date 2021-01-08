@@ -15,7 +15,6 @@
 #define	INT_PRECISION_SHIFT	(INT_PRECISION >> 5)
 #define	VOLUME_MULT	16
 
-
 AUDIO_BUFFERS __attribute__ ((aligned (16))) uint16_t	osc_buf[NUMOSCILLATORS][NUMBER_OF_AUDIO_SAMPLES];
 AUDIO_BUFFERS __attribute__ ((aligned (16))) uint16_t	osc_output_buffer[NUMBER_OF_AUDIO_SAMPLES];
 
