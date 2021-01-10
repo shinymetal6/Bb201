@@ -29,8 +29,11 @@
 #define	FULL_BUFFER_FLAG	0
 #define	BIT_RESOLUTION		12
 
-#define	NUMSTAGES			16
-#define	NUMOSCILLATORS		16
+#define	NUMSTAGES				16
+//#define	NUMOSCILLATORS			4
+#define	NUMOSCILLATORS			16
+#define	NUMVCO					16
+#define	NUMLFO					4
 
 #define	NUMBER_OF_AUDIO_SAMPLES			512
 #define	HALF_NUMBER_OF_AUDIO_SAMPLES	NUMBER_OF_AUDIO_SAMPLES/2
@@ -244,5 +247,8 @@ extern	void clear_buffer_ready_flag(void);
 #include "port.h"
 #include "flash_manager.h"
 #include "oscillators.h"
+#include "oscd.h"
+#include "vco.h"
+#include "lfo.h"
 
 #endif /* BBAUDIO_INC_BBAUDIO_H_ */

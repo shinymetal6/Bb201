@@ -42,7 +42,8 @@ void DoFunnelOut(void)
 {
 uint16_t	index;
 	debug_1();
-	DoOscds();
+	DoVco();
+	DoLfo();
 	for(index=0;index<NUMSTAGES;index++)
 		(*Component[index].FuncPtr)(OUTCHANNEL_0, index);
 	clear_buffer_ready_flag();
@@ -65,7 +66,9 @@ void bbSystemInit(void)
 	SetupFlash();
 	AudioInit();
 	ControlInit();
-	InitOscd();
+	InitVco(SystemParameters.sampling_frequency[0]);
+	InitLfo(SystemParameters.sampling_frequency[0]);
+
 	HAL_TIM_PWM_Start_IT(&htim15,TIM_CHANNEL_1);
 }
 
