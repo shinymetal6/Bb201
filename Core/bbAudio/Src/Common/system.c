@@ -10,9 +10,9 @@
 #include <string.h>
 
 uint32_t	stage=0;
-AUDIO_BUFFERS	__attribute__ ((aligned (16)))	S_Component				Component[NUMSTAGES];
-__attribute__ ((aligned (16))) SystemParametersTypeDef	SystemParameters;
-__attribute__ ((aligned (16))) SystemFlagsTypeDef		SystemFlags;
+AUDIO_BUFFERS	__attribute__ ((aligned (16)))	S_Component		Component[NUMSTAGES];
+__attribute__ ((aligned (16))) SystemParametersTypeDef			SystemParameters;
+__attribute__ ((aligned (16))) SystemFlagsTypeDef				SystemFlags;
 
 uint32_t setOutStage(S_Component *component,uint16_t channel,uint32_t stage_number)
 {

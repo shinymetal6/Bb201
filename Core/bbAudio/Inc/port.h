@@ -27,6 +27,7 @@ extern	TIM_HandleTypeDef htim6;
 */
 extern	void audio_timer_start(void);
 extern	void control_timer_start(void);
+extern	void change_tim_frequency(uint32_t sampling_frequency , uint32_t channel);
 
 
 #endif /* BBAUDIO_INC_PORT_H_ */

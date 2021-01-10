@@ -18,9 +18,9 @@ uint8_t		midi_rx_flag;
 uint16_t 	midi_rx_length;
 uint16_t 	midi_rx_len;
 
-float noteToFreq(uint32_t note)
+double noteToFreq(uint32_t note)
 {
-    return (float )(440.0 * pow( 2.0, ((double)note - 69.0) / 12.0 ));
+    return (440.0 * pow( 2.0, ((double)note - 69.0) / 12.0 ));
 }
 
 static uint16_t SYSEX_ConvertMidiBufOut(uint8_t *buf_out , uint16_t len)
@@ -178,11 +178,11 @@ uint32_t	oscnum;
 static void UsbMidiParseNoteON(void)
 {
 uint32_t	channel , midi_note;
-float		freq;
+double		freq;
 	midi_note = midi_rx_buffer[2];
 	channel = midi_rx_buffer[1]&0x0f;
 	freq = noteToFreq(midi_note);
-	if ( freq > 0.0f )
+	if ( freq > 0.0 )
 	{
 		active_oscillators++;
 		SetOscillatorFrequency(active_oscillators, SystemParameters.sampling_frequency[channel], freq, MAX_VOLUME, midi_note);

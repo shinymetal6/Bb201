@@ -8,7 +8,26 @@
 #ifndef BBAUDIO_INC_USB_MIDI_H_
 #define BBAUDIO_INC_USB_MIDI_H_
 
+
 #define	MIDI_RXBUF_SIZE			2048
+#define	USB_TXBUF_SIZE			2048
+extern	uint32_t	usb_packet_ready;
+extern	uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
+extern	uint8_t	USB_RxBuffer[64];
+extern	char	USB_TxBuffer[USB_TXBUF_SIZE];
+extern	uint32_t USB_RxBufferLen;
+extern	void CheckUSB(void);
+
+#define	USBUART_BUFLEN	128
+typedef struct {
+	uint8_t byte_count;
+	uint8_t usb_header;
+	uint8_t usb_rx_index;
+	uint8_t usb_flag;
+	uint8_t packet[USBUART_BUFLEN];
+} s_rxbuf;
+
+extern	s_rxbuf		usb_rxbuf;
 
 #define	SYSEX					0xF0
 #define	SYSEX_END				0xF7

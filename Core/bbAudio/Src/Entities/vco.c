@@ -73,7 +73,6 @@ uint32_t	vco_element,vco_out[4]={0,0,0,0};
 				vco_buf[vco_number][i] = vco_out[3];
 		}
 		vco_buf[vco_number][i] = (vco_buf[vco_number][i] * ( *(Vco[vco_number].master_volume_control_ptr )) >> DAC_BIT);
-
 	}
 }
 
@@ -106,8 +105,26 @@ double		delta_phase;
 	Vco[vco_number].delta_phase[vco_element]  = (uint16_t )(delta_phase * (double )VCO_PRECISION_SHIFT);
 }
 
-uint16_t	fake_vco_volume_control[NUMVCO][VCO_NUMBER_OF_ELEMENTS];
-uint16_t	fake_vco_master_volume_control[NUMVCO];
+void VcoSetFrequency(uint16_t vco_number,uint32_t frequency,uint32_t sampling_frequency)
+{
+double		delta_phase;
+uint16_t	i;
+	for(i=0;i<VCO_NUMBER_OF_ELEMENTS;i++)
+	{
+		Vco[vco_number].frequency[i] = frequency;
+		delta_phase = ((double )VCOTAB_SIZE / (double )(Vco[vco_number].sampling_frequency / (double )Vco[vco_number].frequency[i] ));
+		Vco[vco_number].delta_phase[i]  = (uint16_t )(delta_phase * (double )VCO_PRECISION_SHIFT);
+	}
+}
+
+uint16_t	internal_vco_volume_control[NUMVCO][VCO_NUMBER_OF_ELEMENTS];
+uint16_t	internal_vco_master_volume_control[NUMVCO];
+
+void VcoSetMasterVolume(uint16_t vco_number,uint16_t master_volume)
+{
+	internal_vco_master_volume_control[vco_number] = master_volume;
+}
+
 
 uint32_t InitVco(uint32_t sampling_frequency)
 {
@@ -117,13 +134,13 @@ double		delta_phase;
 
 	for(vco_number=0;vco_number<NUMVCO;vco_number++)
 	{
-		fake_vco_master_volume_control[vco_number] = 4096;
+		internal_vco_master_volume_control[vco_number] = 4096;
 		Vco[vco_number].sampling_frequency = sampling_frequency;
-		Vco[vco_number].master_volume_control_ptr = &fake_vco_master_volume_control[vco_number];
+		Vco[vco_number].master_volume_control_ptr = &internal_vco_master_volume_control[vco_number];
 
 		for ( vco_element=0;vco_element<VCO_NUMBER_OF_ELEMENTS;vco_element++)
 		{
-			fake_vco_volume_control[vco_number][vco_element] = 4096;
+			internal_vco_volume_control[vco_number][vco_element] = 4096;
 			Vco[vco_number].frequency[vco_element] = 375*2;
 			Vco[vco_number].detune[vco_element] = 0;
 			Vco[vco_number].dephase[vco_element] = 0;
@@ -131,7 +148,7 @@ double		delta_phase;
 			Vco[vco_number].current_phase[vco_element] = 0;
 			delta_phase = ((double )VCOTAB_SIZE / (double )(Vco[vco_number].sampling_frequency / (double )Vco[vco_number].frequency[vco_element] ));
 			Vco[vco_number].delta_phase[vco_element]  = (uint16_t )(delta_phase * (double )VCO_PRECISION_SHIFT);
-			Vco[vco_number].volume_control_ptr[vco_element] = &fake_vco_volume_control[vco_number][vco_element];
+			Vco[vco_number].volume_control_ptr[vco_element] = &internal_vco_volume_control[vco_number][vco_element];
 		}
 		Vco[vco_number].buffer_flag_ptr = get_bufferhalf(0);
 		VcoSinCompile(vco_number,0);

@@ -55,7 +55,7 @@ extern	uint32_t FindOscByMidi(uint32_t midi_note);
 extern	void DoOscillators(void);
 extern	uint32_t InitOscillators(void);
 
-extern	float noteToFreq(uint32_t note);
+extern	double noteToFreq(uint32_t note);
 
 #define	OSCILLATOR_0_MIX				(uint32_t )&osc_out[OUTCHANNEL_0]
 #define	OSCILLATOR_1_MIX				(uint32_t )&osc_out[OUTCHANNEL_1]
