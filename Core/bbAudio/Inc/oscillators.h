@@ -13,6 +13,7 @@
 #define		OSCILLATOR_FREE_RUNNING		2
 #define		OSCILLATOR_LOCAL_CONTROL	4
 #define		MAX_VOLUME					DAC_RESOLUTION
+#define		MIN_VOLUME					0
 
 typedef struct _OscillatorsTypeDef
 {

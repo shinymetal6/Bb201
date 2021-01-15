@@ -62,7 +62,6 @@ uint32_t	i;
 	return 0;
 }
 
-
 static void SysCmdsSYSEX(uint8_t cmd)
 {
 	switch (midi_rx_buf[4])
@@ -77,34 +76,52 @@ static void SysCmdsSYSEX(uint8_t cmd)
 }
 
 #define	MIDI_MAX_VOLUME	127
-static void OscCmdsSYSEX(uint8_t cmd)
+static void VcoCmdsSYSEX(uint8_t cmd)
 {
-uint32_t osc_number=midi_rx_buf[5]&0x0f,parameter=midi_rx_buf[7];
+uint32_t command=midi_rx_buf[4],vco_number=midi_rx_buf[5]&0x0f,subcmd=midi_rx_buf[6],parameter1=midi_rx_buf[7],parameter2=midi_rx_buf[8],parameter3=midi_rx_buf[9],parameter4=midi_rx_buf[10],parameter5=midi_rx_buf[11];
 uint32_t ref_freq,freq;
 
-	if (midi_rx_buf[4] == SYSEX_BB_SETOSCILLATOR )
+	if ( command == SYSEX_BB_SETVCO )
 	{
-		switch (midi_rx_buf[6])
+		switch (subcmd)
 		{
-		case	SYSEX_BB_SETOSCFREQ	:
-			ref_freq = SystemParameters.sampling_frequency[(parameter & 0x03)];
-			freq =	(((midi_rx_buf[8]&0x0f)*1000)+((midi_rx_buf[9]&0x0f)*100)+((midi_rx_buf[10]&0x0f)*10)+((midi_rx_buf[11]&0x0f)));
-			SetOscillatorFrequency(osc_number, ref_freq, freq, MIDI_MAX_VOLUME, 0);
+		case	SYSEX_BB_SETVCOFREQ	:
+			ref_freq = SystemParameters.sampling_frequency[(parameter1 & 0x03)];
+			freq =	(((parameter2 & 0x0f)*1000)+((parameter3 & 0x0f)*100)+((parameter4 & 0x0f)*10)+((parameter5 & 0x0f)));
+			VcoSetFrequency(vco_number,freq,ref_freq);
 			break;
-		case	SYSEX_BB_SETOSCWAVE	:
-			SetOscillatorWaveform(osc_number, parameter & 0x07, 127);
+		case	SYSEX_BB_SETVCOMASTERVOL	:
+			if ( parameter1 <= LOCAL_CONTROLLER_MASK )
+			{
+				VcoSetMasterVolume(vco_number,(uint32_t )&control_buf.ain[parameter1]);
+			}
+			if ( parameter1 == MIDI_CONTROLLER_MASK )
+			{
+				VcoSetMasterVolume(vco_number,(uint32_t )&midi_vco_master_volume_control[vco_number]);
+			}
+			if ( parameter1 == STATIC_CONTROLLER_MASK )
+			{
+				static_vco_master_volume_control[vco_number] = parameter2;
+				VcoSetMasterVolume(vco_number,(uint32_t )&static_vco_master_volume_control[vco_number]);
+			}
 			break;
-		case	SYSEX_BB_SETOSCVOL	:
-			SetOscillatorVolume( osc_number, parameter);
+		case	SYSEX_BB_SETVCOWxVOL	:
+			if ( parameter1 <= LOCAL_CONTROLLER_MASK )
+			{
+				VcoSetElementVolume(vco_number,parameter2,(uint32_t )&control_buf.ain[parameter1]);
+			}
+			if ( parameter1 == MIDI_CONTROLLER_MASK )
+			{
+				VcoSetElementVolume(vco_number,parameter2,(uint32_t )&midi_vco_master_volume_control[vco_number]);
+			}
+			if ( parameter1 == STATIC_CONTROLLER_MASK )
+			{
+				static_vco_master_volume_control[vco_number] = midi_rx_buf[8]&0x0f;
+				VcoSetElementVolume(vco_number,parameter2,(uint32_t )&static_vco_master_volume_control[vco_number]);
+			}
 			break;
-		case	SYSEX_BB_SETOSCPHASE	:
-			SetOscillatorPhase( osc_number, parameter);
-			break;
-		case	SYSEX_BB_SETOSCGROUP	:
-			SetOscillatorGroup( osc_number, parameter);
-			break;
-		case	SYSEX_BB_SETOSCFLAG	:
-			SetOscillatorFlag( osc_number, parameter);
+		case	SYSEX_BB_SETVCOWxWAVE	:
+			VcoSetElementWave(vco_number, parameter2,parameter3,parameter4);
 			break;
 		}
 	}
@@ -149,7 +166,7 @@ static void UsbMidiParseSYSEX(void)
 	switch (midi_rx_buf[4] & SYSEX_BB_CMDMASK)
 	{
 	case	SYSEX_BB_SYSTEM			:	SysCmdsSYSEX(midi_rx_buf[4]); break;
-	case	SYSEX_BB_OSC			:	OscCmdsSYSEX(midi_rx_buf[4]); break;
+	case	SYSEX_BB_VCO			:	VcoCmdsSYSEX(midi_rx_buf[4]); break;
 	case	SYSEX_BB_COMPONENTS		:	CompCmdsSYSEX(midi_rx_buf[4]); break;
 	default : break;
 	}
@@ -168,24 +185,28 @@ uint32_t	oscnum;
 	if ( active_oscillators < 0 )
 		return;
 	oscnum = FindOscByMidi( MIDI_NOTE);
-	if ( oscnum < NUMOSCILLATORS )
+	if ( oscnum < NUMVCO )
 	{
-		DisableOscillator(oscnum);
+		VcoSetMasterVolume(oscnum,VCO_MAX_VOLUME);
+		VcoSetMidiNote(active_oscillators,0);
 		active_oscillators--;
 	}
 }
 
 static void UsbMidiParseNoteON(void)
 {
-uint32_t	channel , midi_note;
+uint32_t	channel , midi_note,ref_freq;
 double		freq;
 	midi_note = midi_rx_buffer[2];
 	channel = midi_rx_buffer[1]&0x0f;
+	ref_freq=SystemParameters.sampling_frequency[channel];
 	freq = noteToFreq(midi_note);
 	if ( freq > 0.0 )
 	{
 		active_oscillators++;
-		SetOscillatorFrequency(active_oscillators, SystemParameters.sampling_frequency[channel], freq, MAX_VOLUME, midi_note);
+		VcoSetMidiNote(active_oscillators,midi_note);
+		VcoSetFrequency(active_oscillators,freq,ref_freq);
+		VcoSetMasterVolume(active_oscillators,VCO_MAX_VOLUME);
 	}
 }
 

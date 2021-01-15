@@ -31,9 +31,10 @@
 
 #define	NUMSTAGES				16
 //#define	NUMOSCILLATORS			4
-#define	NUMOSCILLATORS			16
-#define	NUMVCO					16
+//#define	NUMOSCILLATORS			16
+#define	NUMVCO					8
 #define	NUMLFO					4
+#define	NUMENVELOPES			1
 
 #define	NUMBER_OF_AUDIO_SAMPLES			512
 #define	HALF_NUMBER_OF_AUDIO_SAMPLES	NUMBER_OF_AUDIO_SAMPLES/2
@@ -104,7 +105,7 @@ uint32_t VCFInit(uint32_t in_stage,uint32_t in_buffer, uint32_t out_buffer, uint
 #include "control_functions.h"
 #include "port.h"
 #include "flash_manager.h"
-#include "oscillators.h"
+//#include "oscillators.h"
 //#include "oscd.h"
 #include "vco.h"
 #include "lfo.h"

@@ -68,7 +68,9 @@ void bbSystemInit(void)
 	ControlInit();
 	InitVco(SystemParameters.sampling_frequency[0]);
 	InitLfo(SystemParameters.sampling_frequency[0]);
-
+	EnvelopeInit();
+	EnvelopeInsert();
+	envelope_timer_start();
 	HAL_TIM_PWM_Start_IT(&htim15,TIM_CHANNEL_1);
 }
 
@@ -83,17 +85,17 @@ void ChangeSampleFrequency(uint32_t sampling_frequency , uint32_t channel)
 
 uint32_t ClearFunnelEntries(void)
 {
-
+	return 0;
 }
 
 uint32_t ReportFunnelEntries(uint32_t channel)
 {
-
+	return 0;
 }
 
 char *ReportFunnelName(uint32_t channel,uint32_t funnel_entry)
 {
-
+	return 0;
 }
 
 void debug_1(void)

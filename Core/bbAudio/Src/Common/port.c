@@ -17,6 +17,16 @@ void control_timer_start(void)
 	HAL_LPTIM_Counter_Start_IT(CONTROL_LOOP_TIMER,3125);
 }
 
+void envelope_timer_start(void)
+{
+	HAL_TIM_Base_Start_IT(&htim7);
+}
+
+void envelope_timer_callback(void)
+{
+	SystemFlags.envelope_ready = 1;
+}
+
 void change_tim_frequency(uint32_t sampling_frequency , uint32_t channel)
 {
 	if ( channel == OUTCHANNEL_0)

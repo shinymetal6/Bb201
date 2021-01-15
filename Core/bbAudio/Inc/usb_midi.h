@@ -43,15 +43,28 @@ extern	s_rxbuf		usb_rxbuf;
 #define	SYSEX_BB_LOADFIRCOEF	0x05
 #define	SYSEX_BB_LOADWAVEFORM	0x06
 
-#define	SYSEX_BB_OSC			0x10
-#define	SYSEX_BB_SETOSCILLATOR	0x10
+#define	SYSEX_BB_VCO			0x10
+#define	SYSEX_BB_SETVCO			0x10
 /* subcommands */
-	#define	SYSEX_BB_SETOSCFREQ		0x00
-	#define	SYSEX_BB_SETOSCWAVE		0x01
-	#define	SYSEX_BB_SETOSCVOL		0x02
-	#define	SYSEX_BB_SETOSCPHASE	0x03
-	#define	SYSEX_BB_SETOSCGROUP	0x04
-	#define	SYSEX_BB_SETOSCFLAG		0x05
+	#define	SYSEX_BB_SETVCOFREQ			0x00
+	#define	SYSEX_BB_SETVCOMASTERVOL	0x01
+	#define	SYSEX_BB_SETVCOWxDETUNE		0x02
+	#define	SYSEX_BB_SETVCOWxVOL		0x03
+	#define	SYSEX_BB_SETVCOWxPHASE		0x04
+	#define	SYSEX_BB_SETVCOWxWAVE		0x05
+
+#define	SYSEX_BB_LFO			0x20
+#define	SYSEX_BB_SETLFO			0x20
+/* subcommands */
+	#define	SYSEX_BB_SETLFOFREQ		0x00
+	#define	SYSEX_BB_SETLFOWAVE		0x01
+	#define	SYSEX_BB_SETLFOVOL		0x02
+
+#define	SYSEX_BB_VCF			0x30
+#define	SYSEX_BB_SETVCF			0x30
+/* subcommands */
+	#define	SYSEX_BB_SETVCFCUTOFF		0x00
+	#define	SYSEX_BB_SETVCFRESONANCE	0x01
 
 
 #define	SYSEX_BB_COMPONENTS		0x20
@@ -60,6 +73,9 @@ extern	s_rxbuf		usb_rxbuf;
 #define	SYSEX_BB_COMP_MODOUT	0x22
 #define	SYSEX_BB_COMP_DEFCNTRL	0x23
 
+#define	LOCAL_CONTROLLER_MASK	0x0F
+#define	MIDI_CONTROLLER_MASK	0x10
+#define	STATIC_CONTROLLER_MASK	0x7F
 #define	CMD_MASK				0xF0
 #define	NOTE_OFF				0x80
 #define	NOTE_ON					0x90

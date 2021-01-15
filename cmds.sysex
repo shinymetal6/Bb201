@@ -1,26 +1,49 @@
 Clear : 
 amidi -p hw:2,0,0 -S 'F0 00 62 42 00 00 00 F7'
 
-Oscillator settings:
-	cmd : SYSEX_BB_SETOSCILLATOR ( 10 )
-		oscnumber : oscillator number
-		subcmd : SYSEX_BB_SETOSCFREQ ( 00 )
+VCO:
+The VCO is composed by a 4 Wave VCO ( WVCO ).
+Each WVCO in a VCO has the same base frequency but can have different waveform, phase, detune and volume controls.
+	VCO settings:
+	cmd : SYSEX_BB_SETVCO ( 10 )
+		vconumber : VCO number
+		subcmd : SYSEX_BB_SETVCOFREQ ( 0x00 )
 				ref_channel : reference channel for sampling frequency, 0 or 1
-				freq : ignored unless flags is not OSCILLATOR_FREE_RUNNING in <flags>,
-						<freq*10000> <freq*1000> <freq*100> <freq*10> <freq*1> 
-		subcmd : SYSEX_BB_SETOSCVOL ( 01 )
-				volume : volume : 0..127
-		subcmd : SYSEX_BB_SETOSCWAVE ( 02 )
+				freq : <freq*10000> <freq*1000> <freq*100> <freq*10> <freq*1> 
+				Frequency is set on all WVCO.
+		subcmd : SYSEX_BB_SETVCOMASTERVOL ( 0x01 )
+				controller :
+						0 .. 15 : 	local controller ( pot from a/d )
+						16		:	controlled by midi 
+						7F 		: 	static internal control
+				value : valid only for controller = 7F
+	WVCO settings:
+		subcmd : SYSEX_BB_SETVCOWxDETUNE ( 0x02 )
+				detune controller :
+						0 .. 15 : 	local controller ( pot from a/d )
+						16		:	controlled by midi 
+						7F 		: 	static internal control
+				element : 0:3
+		subcmd : SYSEX_BB_SETVCOWxVOL ( 0x03 )
+				wvco volume controller :
+						0 .. 15 : 	local controller ( pot from a/d )
+						16		:	controlled by midi 
+						7F 		: 	static internal control
+				element : 0:3
+		subcmd : SYSEX_BB_SETVCOWxPHASE ( 0x04 )
+				phase : number of the phase controller, ignored if waveform is SINE, defines the duty ( 64 is 50% )
+						0 .. 15 : 	local controller ( pot from a/d )
+						16		:	controlled by midi 
+						7F 		: 	static internal control
+				element : 0:3
+				value : valid only for controller = 7F
+
+		subcmd : SYSEX_BB_SETVCOWxPHASE ( 0x05 )
 				waveform  : SINE, TRIANGLE, SQUARE : 0,1,2
-		subcmd : SYSEX_BB_SETOSCPHASE ( 03 )
-				phase : number of the volume controller, 0..127.ignored if waveform is SINE,defines the duty ( 64 is 50% )
-		subcmd : SYSEX_BB_SETOSCGROUP ( 04 )
-				group : group this oscillator belongs
-		subcmd : SYSEX_BB_SETOSCFLAG ( 05 )
-				flag : 	OSCILLATOR_DISABLED 		: oscillator off 	( 00 )
-						OSCILLATOR_MIDI 			: listen midi 		( 01 )
-						OSCILLATOR_FREE_RUNNING 	: always enabled 	( 02 )
-						OSCILLATOR_LOCAL_CONTROL 	: local controller 	( 60 .. 6f )
+				element : 0:3
+
+
+
 		SYSEX Message :
 				F0 00 62 42 <cmd> <oscnumber > <subcmd> <subcmd parameter> .. <F7>
 	

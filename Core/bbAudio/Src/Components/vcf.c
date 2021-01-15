@@ -8,6 +8,7 @@
 
 #include "main.h"
 #include "math.h"
+#define	VCF_FUNCTION_NAME	"VCF"
 
 double b0, b1, b2, b3, b4;  //filter buffers
 
@@ -47,6 +48,7 @@ double	eqsample;
 	return (uint16_t )eqsample;
 }
 
+/*
 static	void static_do_vcf(uint16_t *in_buffer,uint16_t *out_buffer, uint32_t *half_in, uint32_t filterCutoff, uint32_t filterResonance, uint32_t filterType, uint32_t channel)
 {
 uint16_t	i,start,end;
@@ -65,5 +67,38 @@ uint32_t frequency = 2000;
 
 	stage++;
 	return 0;
+}
+*/
+
+static	void static_do_vcf(uint16_t stage_number)
+{
+S_Component		*component = &Component[stage_number];
+uint16_t		i,start,end;
+uint16_t		channel=component->channel;
+uint16_t 		*in_buffer=(uint16_t *)component->in_buffer0;
+uint16_t		*out_buffer=(uint16_t *)component->out_buffer0;
+uint32_t		*filterCutoff=(uint32_t *)component->volume_ch0_source_ptr;
+uint32_t		*filterResonance=(uint32_t *)component->volume_ch1_source_ptr;
+uint32_t 		filterType = LP;	// HP, BP or LP
+
+	get_limits(&start,&end,(uint32_t *)component->half_ptr);
+	for ( i=start;i<end;i++)
+		out_buffer[i] = filter(in_buffer[i],*filterCutoff,*filterResonance,filterType,channel);
+}
+
+uint32_t VCFInit(uint32_t in_buffer, uint32_t out_buffer, uint32_t channel, uint32_t stage)
+{
+S_Component		component;
+
+	bzero(&component,sizeof(S_Component));
+	component.FuncPtr =  (void *)&static_do_vcf;
+	component.in_buffer0 = in_buffer;
+	component.out_buffer0 = out_buffer;
+	component.channel = channel;
+	component.half_ptr = get_bufferhalf(channel);
+	strncat(component.functionName,VCF_FUNCTION_NAME,strlen(VCF_FUNCTION_NAME));
+	setOutStage((S_Component *)&component,channel,stage);
+	stage++;
+	return stage;
 }
 
