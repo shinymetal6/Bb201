@@ -75,8 +75,14 @@ void Error_Handler(void);
 #define SIGOUT1_GPIO_Port GPIOE
 #define EECS_Pin GPIO_PIN_11
 #define EECS_GPIO_Port GPIOE
-#define LOG_Pin GPIO_PIN_6
-#define LOG_GPIO_Port GPIOD
+#define LOG_Pin GPIO_PIN_9
+#define LOG_GPIO_Port GPIOA
+#define SPI1_SS_Pin GPIO_PIN_6
+#define SPI1_SS_GPIO_Port GPIOD
+#define DIGITAL0_Pin GPIO_PIN_6
+#define DIGITAL0_GPIO_Port GPIOB
+#define DIGITAL1_Pin GPIO_PIN_8
+#define DIGITAL1_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -51,6 +51,7 @@ extern	DMA_HandleTypeDef hdma_dac1_ch2;
 extern	OPAMP_HandleTypeDef hopamp1;
 extern	OPAMP_HandleTypeDef hopamp2;
 extern	SPI_HandleTypeDef hspi4;
+extern	TIM_HandleTypeDef htim3;
 extern	TIM_HandleTypeDef htim15;
 extern	RNG_HandleTypeDef hrng;
 

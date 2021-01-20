@@ -109,6 +109,9 @@ static void VcoTriCompile(uint16_t vco_number,uint16_t vco_element, uint16_t pha
 double 	step_up,step_down,current;
 uint32_t	i;
 
+	phase /= 16;
+	if ( phase == 0 )
+		phase = 1;
 	step_up = (double )(DAC_RESOLUTION-1) / (double )phase;
 	step_down = (double )(DAC_RESOLUTION-1)  / (double )( VCOTAB_SIZE - phase);
 	current=0;
@@ -130,6 +133,9 @@ static void VcoSquareCompile(uint16_t vco_number,uint16_t vco_element, uint16_t 
 {
 uint32_t	i;
 
+	phase /= 16;
+	if ( phase == 0 )
+		phase = 1;
 	for(i=0;i<VCOTAB_SIZE;i++)
 	{
 		if ( i < phase )
@@ -160,13 +166,10 @@ void VcoElementDetune(uint16_t	vco_number,uint16_t	vco_element,int16_t percentag
 double		delta_phase, frequency_step,frequency_delta, frequency_shift, norm_percent;
 	if ( percentage_dac > (DAC_RESOLUTION-1))
 		percentage_dac = DAC_RESOLUTION-1;
-
 	norm_percent = percentage_dac - 2048;
 	frequency_delta = norm_percent / 2048;
 	frequency_step = (Vco[vco_number].frequency - (Vco[vco_number].frequency/2.0))/24.0;
 	frequency_shift = frequency_step * frequency_delta;
-
-	//frequency_shift = (((double )Vco[vco_number].frequency - ((double )Vco[vco_number].frequency/2.0)) / 12.0)*(100.0 / (2048.0 - (double )percentage_dac));
 	delta_phase = ((double )VCOTAB_SIZE / (double )(Vco[vco_number].sampling_frequency / ((double )Vco[vco_number].frequency +frequency_shift)));
 	Vco[vco_number].delta_phase[vco_element]  = (uint16_t )(delta_phase * (double )VCO_PRECISION_SHIFT);
 }
@@ -207,6 +210,10 @@ uint32_t	i;
 	return NUMVCO * 2;
 }
 
+//#define	SINEWAVE	1
+#define	TRIWAVE		1
+//#define	SQUAREWAVE	1
+
 uint32_t InitVco(uint32_t sampling_frequency)
 {
 uint16_t	vco_number;
@@ -218,7 +225,7 @@ double		delta_phase;
 		static_vco_master_volume_control[vco_number] = 4096;
 		Vco[vco_number].sampling_frequency = sampling_frequency;
 		Vco[vco_number].master_volume_control = &control_buf.ain[0];
-		Vco[vco_number].frequency = 880;
+		Vco[vco_number].frequency = 375;
 
 		for ( vco_element=0;vco_element<VCO_NUMBER_OF_ELEMENTS;vco_element++)
 		{
@@ -232,13 +239,40 @@ double		delta_phase;
 			Vco[vco_number].volume_control[vco_element] = &static_vco_volume_control[vco_number][vco_element];
 		}
 		Vco[vco_number].buffer_flag_ptr = get_bufferhalf(0);
+		/*
+		VcoSetElementWave(vco_number, 0, TRIANGLE, 0);
+		static_vco_volume_control[vco_number][1] = 0;
+		static_vco_volume_control[vco_number][2] = 0;
+		static_vco_volume_control[vco_number][3] = 0;
+		*/
+		/**/
+#ifdef SINEWAVE
 		VcoSetElementWave(vco_number, 0, SINE, 0);
 		VcoSetElementWave(vco_number, 1, SINE, 0);
 		VcoSetElementWave(vco_number, 2, SINE, 0);
 		VcoSetElementWave(vco_number, 3, SINE, 0);
+#endif
+
+#ifdef TRIWAVE
+		VcoSetElementWave(vco_number, 0, TRIANGLE, 0);
+		VcoSetElementWave(vco_number, 1, TRIANGLE, 0);
+		VcoSetElementWave(vco_number, 2, TRIANGLE, 0);
+		VcoSetElementWave(vco_number, 3, TRIANGLE, 0);
+#endif
+#ifdef SQUAREWAVE
+		VcoSetElementWave(vco_number, 0, SQUARE, 0);
+		VcoSetElementWave(vco_number, 1, SQUARE, 0);
+		VcoSetElementWave(vco_number, 2, SQUARE, 0);
+		VcoSetElementWave(vco_number, 3, SQUARE, 0);
+#endif
+		static_vco_volume_control[vco_number][1] = 0;
+		static_vco_volume_control[vco_number][2] = 0;
+		static_vco_volume_control[vco_number][3] = 0;
 	}
 	return NUMVCO*2;
 }
+
+uint16_t	test_duty=0, up=1;
 
 void DoVco(void)
 {
@@ -247,10 +281,33 @@ uint16_t	vco_number,vco_element=0,percentage_dac=2048,sampling_frequency=SystemP
 
 	get_limits(&start,&end,(uint32_t *)Vco[0].buffer_flag_ptr);
 	percentage_dac=control_buf.ain[1];
+	if ( up == 1 )
+	{
+		test_duty++;
+		if ( test_duty > 0xffe )
+		{
+			up = 0;
+		}
+	}
+	else
+	{
+		test_duty--;
+		if ( test_duty < 1 )
+		{
+			up = 1;
+		}
+	}
+
+	test_duty &= 0xfff;
 	for(vco_number=0;vco_number<NUMVCO;vco_number++)
 	{
 		VcoSetFrequency(vco_number,Vco[vco_number].frequency, sampling_frequency);
-		VcoElementDetune(vco_number,vco_element, percentage_dac, sampling_frequency);
+		for(vco_element=0;vco_element<VCO_NUMBER_OF_ELEMENTS;vco_element++)
+		{
+			if ( Vco[vco_number].waveform[vco_element] != SINE )
+				VcoSetElementWave(vco_number, vco_element, Vco[vco_number].waveform[vco_element], test_duty);
+			VcoElementDetune(vco_number,vco_element, percentage_dac, sampling_frequency);
+		}
 		i_vco(vco_number);
 	}
 }

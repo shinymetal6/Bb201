@@ -62,15 +62,16 @@ void bbSystem_SystemSetDefaults(void)
 void bbSystemInit(void)
 {
 	bbSystem_SystemSetDefaults();
+	LcdInit();
 	InitNFunnel();
 	SetupFlash();
 	AudioInit();
 	ControlInit();
 	InitVco(SystemParameters.sampling_frequency[0]);
-	InitLfo(SystemParameters.sampling_frequency[0]);
-	EnvelopeInit();
-	EnvelopeInsert();
-	envelope_timer_start();
+	//InitLfo(SystemParameters.sampling_frequency[0]);
+	//EnvelopeInit();
+	//EnvelopeInsert();
+	//envelope_timer_start();
 	HAL_TIM_PWM_Start_IT(&htim15,TIM_CHANNEL_1);
 }
 
