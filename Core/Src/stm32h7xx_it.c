@@ -289,7 +289,7 @@ void TIM7_IRQHandler(void)
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
-  envelope_timer_callback();
+  system_timer_callback();
   /* USER CODE END TIM7_IRQn 1 */
 }
 

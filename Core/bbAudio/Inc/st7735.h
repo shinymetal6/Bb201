@@ -229,14 +229,16 @@ extern SPI_HandleTypeDef ST7735_SPI_PORT;
 #define ST7735_GMCTRN1 0xE1
 
 // Color definitions
-#define	ST7735_BLACK   0x0000
-#define	ST7735_BLUE    0x001F
-#define	ST7735_RED     0xF800
-#define	ST7735_GREEN   0x07E0
-#define ST7735_CYAN    0x07FF
-#define ST7735_MAGENTA 0xF81F
-#define ST7735_YELLOW  0xFFE0
-#define ST7735_WHITE   0xFFFF
+#define	ST7735_BLACK   	0x0000
+#define	ST7735_BLUE    	0x001F
+#define	ST7735_DARKBLUE 0x0007
+#define	ST7735_RED     	0xF800
+#define	ST7735_GREEN   	0x07E0
+#define ST7735_CYAN    	0x07FF
+#define ST7735_MAGENTA 	0xF81F
+#define ST7735_YELLOW  	0xFFE0
+#define ST7735_WHITE   	0xFFFF
+#define ST7735_HILIGHT 	0x0060
 #define ST7735_COLOR565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
 
 // call before initializing any SPI devices
@@ -248,7 +250,7 @@ void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, u
 void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void ST7735_FillScreen(uint16_t color);
 void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
-void ST7735_InvertColors(bool invert);
+void ST7735_InvertColors(uint32_t invert);
 uint8_t ST7735_GetFontHeigth(FontDef font);
 uint8_t ST7735_GetFontWidth(FontDef font);
 

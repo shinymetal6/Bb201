@@ -53,7 +53,7 @@ typedef struct _SystemFlagsTypeDef
 	uint32_t 				audioin_buffer_ready_ch0;
 	uint32_t 				audioin_buffer_ready_ch1;
 	uint32_t 				control_ready;
-	uint32_t 				envelope_ready;
+	uint32_t 				systick_ready;
 }SystemFlagsTypeDef;
 
 extern	uint32_t		stage;

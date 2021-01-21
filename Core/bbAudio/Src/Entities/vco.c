@@ -277,7 +277,7 @@ uint16_t	test_duty=0, up=1;
 void DoVco(void)
 {
 uint16_t	start,end;
-uint16_t	vco_number,vco_element=0,percentage_dac=2048,sampling_frequency=SystemParameters.sampling_frequency[0];
+uint16_t	vco_number,vco_element=0,percentage_dac,sampling_frequency=SystemParameters.sampling_frequency[0];
 
 	get_limits(&start,&end,(uint32_t *)Vco[0].buffer_flag_ptr);
 	percentage_dac=control_buf.ain[1];

@@ -28,7 +28,8 @@ char line1[32],line2[32],line3[32],line4[32],line5[32],line6[32];
 typedef struct {
     uint8_t xpos;
 	uint8_t	ypos;
-    char line[32];
+	uint8_t	font;
+    char line[29];
     uint16_t fore_color;
 	uint16_t bkg_color;
 } Video;

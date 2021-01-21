@@ -135,7 +135,7 @@
 					</fileInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
-						<entry excluding="bbAudio/Src/Components/oscillators.c|bbAudio/Src/Components/oscd.c|bbAudio/Src/Components/echo_OLD.c|bbAudio/Src/Components/mixer_OLD.c|bbAudio/Src/Components/q15_fir.c|bbAudio/Src/Components/noise_generator.c|bbAudio/Src/Components/noise_adder.c|bbAudio/Src/Components/mixer.c|bbAudio/Src/Components/fir_tables.c|bbAudio/Src/Components/storecode.c|bbAudio/Src/Components/i_oscillators.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
+						<entry excluding="bbAudio/Src/Common/octave_code_fir.c|bbAudio/Src/Common/lcd.c|bbAudio/Src/Components/oscillators.c|bbAudio/Src/Components/oscd.c|bbAudio/Src/Components/echo_OLD.c|bbAudio/Src/Components/mixer_OLD.c|bbAudio/Src/Components/q15_fir.c|bbAudio/Src/Components/noise_generator.c|bbAudio/Src/Components/noise_adder.c|bbAudio/Src/Components/mixer.c|bbAudio/Src/Components/fir_tables.c|bbAudio/Src/Components/storecode.c|bbAudio/Src/Components/i_oscillators.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="ST" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 					</sourceEntries>
@@ -219,7 +219,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="CMSIS"/>
-						<entry excluding="bbAudio/Src/Components/oscillators.c|bbAudio/Src/Components/oscd.c|bbAudio/Src/Components/echo_OLD.c|bbAudio/Src/Components/mixer_OLD.c|bbAudio/Src/Components/q15_fir.c|bbAudio/Src/Components/noise_generator.c|bbAudio/Src/Components/noise_adder.c|bbAudio/Src/Components/mixer.c|bbAudio/Src/Components/fir_tables.c|bbAudio/Src/Components/storecode.c|bbAudio/Src/Components/i_oscillators.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
+						<entry excluding="bbAudio/Src/Common/octave_code_fir.c|bbAudio/Src/Common/lcd.c|bbAudio/Src/Components/oscillators.c|bbAudio/Src/Components/oscd.c|bbAudio/Src/Components/echo_OLD.c|bbAudio/Src/Components/mixer_OLD.c|bbAudio/Src/Components/q15_fir.c|bbAudio/Src/Components/noise_generator.c|bbAudio/Src/Components/noise_adder.c|bbAudio/Src/Components/mixer.c|bbAudio/Src/Components/fir_tables.c|bbAudio/Src/Components/storecode.c|bbAudio/Src/Components/i_oscillators.c|bbAudio/CDC|bbAudio/Src/Common/usb_commands.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Core"/>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
 						<entry excluding="ST" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
 					</sourceEntries>

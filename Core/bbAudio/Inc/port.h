@@ -22,8 +22,8 @@ extern	TIM_HandleTypeDef htim7;
 
 extern	void audio_timer_start(void);
 extern	void control_timer_start(void);
-extern	void envelope_timer_start(void);
-extern	void envelope_timer_callback(void);
+extern	void system_timer_start(void);
+extern	void system_timer_callback(void);
 
 extern	void change_tim_frequency(uint32_t sampling_frequency , uint32_t channel);
 
