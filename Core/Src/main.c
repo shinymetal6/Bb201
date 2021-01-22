@@ -178,6 +178,8 @@ int main(void)
   ECHOInit    ((uint32_t )&vco_buf[0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0,stage);
   //ECHOInit    ((uint32_t )&lfo_buf[0],AUDIO_BUFOUT_CH0,OUTCHANNEL_0,stage);
 
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
